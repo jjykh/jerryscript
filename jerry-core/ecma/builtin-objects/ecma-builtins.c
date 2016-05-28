@@ -491,6 +491,44 @@ ecma_builtin_make_function_object_for_routine (ecma_builtin_id_t builtin_id, /**
   return func_obj_p;
 } /* ecma_builtin_make_function_object_for_routine */
 
+#ifdef _MSC_VER
+#define ecma_builtin_object_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_object_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_array_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_array_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_string_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_string_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_boolean_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_boolean_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_number_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_number_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_math_dispatch_call(a,b) 0
+#define ecma_builtin_math_dispatch_construct(a,b) 0
+#define ecma_builtin_json_dispatch_call(a,b) 0
+#define ecma_builtin_json_dispatch_construct(a,b) 0
+#define ecma_builtin_date_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_date_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_regexp_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_regexp_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_error_prototype_dispatch_construct(a,b) 0
+
+#define ecma_builtin_eval_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_eval_error_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_range_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_range_error_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_reference_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_reference_error_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_syntax_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_syntax_error_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_type_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_type_error_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_uri_error_prototype_dispatch_call(a,b) 0
+#define ecma_builtin_uri_error_prototype_dispatch_construct(a,b) 0
+#define ecma_builtin_global_dispatch_call(a,b) 0
+#define ecma_builtin_global_dispatch_construct(a,b) 0
+#endif
+
 /**
  * Handle calling [[Call]] of built-in object
  *

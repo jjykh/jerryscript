@@ -1043,7 +1043,7 @@ ecma_date_value_to_string (ecma_number_t datetime_number) /**< datetime */
   /*
    * Character length of the result string.
    */
-  const uint32_t result_string_length = 34;
+	#define result_string_length 34
 
   lit_utf8_byte_t character_buffer[result_string_length];
   lit_utf8_byte_t *dest_p = character_buffer;
@@ -1104,7 +1104,8 @@ ecma_date_value_to_utc_string (ecma_number_t datetime_number) /**< datetime */
   /*
    * Character length of the result string.
    */
-  const uint32_t result_string_length = 29;
+#undef result_string_length
+#define result_string_length 29
 
   lit_utf8_byte_t character_buffer[result_string_length];
   lit_utf8_byte_t *dest_p = character_buffer;
@@ -1145,7 +1146,8 @@ ecma_date_value_to_iso_string (ecma_number_t datetime_number) /**<datetime */
   /*
    * Character length of the result string.
    */
-  const uint32_t result_string_length = 24;
+#undef result_string_length
+#define result_string_length 24
 
   lit_utf8_byte_t character_buffer[result_string_length];
   lit_utf8_byte_t *dest_p = character_buffer;
@@ -1206,7 +1208,8 @@ ecma_date_value_to_date_string (ecma_number_t datetime_number) /**<datetime */
   /*
    * Character length of the result string.
    */
-  const uint32_t result_string_length = 10;
+#undef result_string_length
+#define result_string_length 10
 
   lit_utf8_byte_t character_buffer[result_string_length];
   lit_utf8_byte_t *dest_p = character_buffer;
@@ -1250,7 +1253,8 @@ ecma_date_value_to_time_string (ecma_number_t datetime_number) /**<datetime */
   /*
    * Character length of the result string.
    */
-  const uint32_t result_string_length = 12;
+#undef result_string_length
+#define result_string_length 12
 
   lit_utf8_byte_t character_buffer[result_string_length];
   lit_utf8_byte_t *dest_p = character_buffer;

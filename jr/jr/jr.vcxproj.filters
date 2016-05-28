@@ -1,0 +1,390 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\jerry-core">
+      <UniqueIdentifier>{b6c3144c-bc33-4856-a823-b556f3d26d7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\ecma">
+      <UniqueIdentifier>{e3d6a6a4-0c07-4d8b-ba4f-cec2c20a661e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\ecma\base">
+      <UniqueIdentifier>{e0dbf6da-7507-4a5c-bd83-6ff5ed03c1ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\ecma\builtin-objects">
+      <UniqueIdentifier>{4e81742e-97a4-4671-8139-227d86048339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\ecma\operations">
+      <UniqueIdentifier>{933ef544-0747-49f5-8462-0453e8226813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\port">
+      <UniqueIdentifier>{7bd80d72-0933-4219-879d-12837f79bb54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\jmem">
+      <UniqueIdentifier>{c525053f-48bc-47f5-846b-69750eb8a7b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\jrt">
+      <UniqueIdentifier>{6d801545-85d0-4cf8-8ecf-5a3e945561df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\lit">
+      <UniqueIdentifier>{cd1b398b-41ca-4385-b5ba-c5f7fc370ae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\vm">
+      <UniqueIdentifier>{e0fef8d9-9a74-4642-85ff-6fca16486301}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\parser">
+      <UniqueIdentifier>{444e0760-bcb9-48a2-9255-29abb3c7e2be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\parser\js">
+      <UniqueIdentifier>{b9f3cdca-325d-44d6-aadf-04bb293f1485}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\jerry-core\parser\regexp">
+      <UniqueIdentifier>{dd5f1cbc-2aa8-4c2f-8fb7-76ac827eb78d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\jerry.c">
+      <Filter>Source Files\jerry-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-alloc.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-gc.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-conversion.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-errol.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-external-pointers.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-number.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-string.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-value.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-helpers-values-collection.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-init-finalize.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-lcache.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\base\ecma-property-hashmap.c">
+      <Filter>Source Files\jerry-core\ecma\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-array.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-array-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-boolean.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-boolean-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-compact-profile-error.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-date.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-date-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-error.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-error-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-evalerror.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-evalerror-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-function.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-function-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-global.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-helpers.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-helpers-date.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-helpers-error.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-helpers-json.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-json.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-math.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-number.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-number-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-object.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-object-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-rangeerror.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-rangeerror-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-referenceerror.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-referenceerror-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-regexp.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-regexp-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtins.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-string.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-string-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-syntaxerror.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-syntaxerror-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-typeerror.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-typeerror-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-type-error-thrower.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-urierror.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\builtin-objects\ecma-builtin-urierror-prototype.c">
+      <Filter>Source Files\jerry-core\ecma\builtin-objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-array-object.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-boolean-object.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-comparison.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-conversion.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-eval.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-exceptions.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-function-object.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-get-put-value.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-lex-env.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-number-arithmetic.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-number-object.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-objects.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-objects-arguments.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-objects-general.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-reference.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-regexp-object.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\ecma\operations\ecma-string-object.c">
+      <Filter>Source Files\jerry-core\ecma\operations</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\targets\win32\jerry-port-default-date.c">
+      <Filter>Source Files\jerry-core\port</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\targets\win32\jerry-port-default-fatal.c">
+      <Filter>Source Files\jerry-core\port</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\targets\win32\jerry-port-default-io.c">
+      <Filter>Source Files\jerry-core\port</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\jmem\jmem-allocator.c">
+      <Filter>Source Files\jerry-core\jmem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\jmem\jmem-heap.c">
+      <Filter>Source Files\jerry-core\jmem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\jmem\jmem-poolman.c">
+      <Filter>Source Files\jerry-core\jmem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\jrt\jrt.c">
+      <Filter>Source Files\jerry-core\jrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\jrt\jrt-fatals.c">
+      <Filter>Source Files\jerry-core\jrt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-char-helpers.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-cpointer.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-literal.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-literal-storage.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-magic-strings.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-snapshot.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\lit\lit-strings.c">
+      <Filter>Source Files\jerry-core\lit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\opcodes.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\opcodes-ecma-arithmetics.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\opcodes-ecma-bitwise.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\opcodes-ecma-equality.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\opcodes-ecma-relational.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\vm.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\vm\vm-stack.c">
+      <Filter>Source Files\jerry-core\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\byte-code.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\common.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-lexer.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-parser.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-parser-expr.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-parser-mem.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-parser-scanner.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-parser-statm.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\js\js-parser-util.c">
+      <Filter>Source Files\jerry-core\parser\js</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\regexp\re-bytecode.c">
+      <Filter>Source Files\jerry-core\parser\regexp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\regexp\re-compiler.c">
+      <Filter>Source Files\jerry-core\parser\regexp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\jerry-core\parser\regexp\re-parser.c">
+      <Filter>Source Files\jerry-core\parser\regexp</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -34,7 +34,11 @@
 #include "vm.h"
 #include "vm-stack.h"
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#else
 #include <alloca.h>
+#endif
 
 /** \addtogroup vm Virtual machine
  * @{

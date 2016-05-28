@@ -516,7 +516,7 @@ ecma_op_object_get_property_names (ecma_object_t *obj_p, /**< object */
   const ecma_object_type_t type = ecma_get_object_type (obj_p);
   const bool obj_is_builtin = ecma_get_object_is_builtin (obj_p);
 
-  const size_t bitmap_row_size = sizeof (uint32_t) * JERRY_BITSINBYTE;
+  #define bitmap_row_size (sizeof (uint32_t) * JERRY_BITSINBYTE)
   uint32_t names_hashes_bitmap[(1u << LIT_STRING_HASH_BITS) / bitmap_row_size];
 
   memset (names_hashes_bitmap, 0, sizeof (names_hashes_bitmap));

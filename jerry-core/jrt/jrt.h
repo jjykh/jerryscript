@@ -23,6 +23,12 @@
 #include "jerry.h"
 #include "jrt-types.h"
 
+#ifdef _MSC_VER
+#define __attribute__(x)	/**/
+#define __builtin_expect(e, f)	e
+#define __aligned(x)	__declspec(align(x))
+#endif
+
 /**
  * Attributes
  */
@@ -60,11 +66,7 @@
  *         __LINE__ may be the same for asserts in a header
  *         and in an implementation file.
  */
-#define JERRY_STATIC_ASSERT_GLUE_(a, b, c) a ## b ## c
-#define JERRY_STATIC_ASSERT_GLUE(a, b, c) JERRY_STATIC_ASSERT_GLUE_ (a, b, c)
-#define JERRY_STATIC_ASSERT(x, msg) \
-  typedef char JERRY_STATIC_ASSERT_GLUE (static_assertion_failed_, __LINE__, msg) \
-  [ (x) ? 1 : -1 ] __attr_unused___
+#define JERRY_STATIC_ASSERT(x, msg) static_assert(x, #msg)
 
 /**
  * Variable that must not be referenced.
@@ -81,7 +83,7 @@ extern void __noreturn jerry_unimplemented (const char *, const char *, const ch
 #define JERRY_ASSERT(x) do { if (__builtin_expect (!(x), 0)) { \
     jerry_assert_fail (#x, __FILE__, __func__, __LINE__); } } while (0)
 #else /* JERRY_NDEBUG */
-#define JERRY_ASSERT(x) do { if (false) { (void)(x); } } while (0)
+#define JERRY_ASSERT(x) do { if (0) { (void)(x); } } while (0)
 #endif /* !JERRY_NDEBUG */
 
 #ifdef JERRY_ENABLE_LOG
@@ -102,10 +104,6 @@ extern void __noreturn jerry_unimplemented (const char *, const char *, const ch
 #define JERRY_DLOG(...) \
   do \
   { \
-    if (false) \
-    { \
-      jerry_ref_unused_variables (0, __VA_ARGS__); \
-    } \
   } while (0)
 #define JERRY_DDLOG(...) JERRY_DLOG (__VA_ARGS__)
 #define JERRY_DDDLOG(...) JERRY_DLOG (__VA_ARGS__)
@@ -135,10 +133,6 @@ extern void jerry_ref_unused_variables (void *, ...);
 #define JERRY_UNIMPLEMENTED_REF_UNUSED_VARS(comment, ...) \
   do \
   { \
-    if (false) \
-    { \
-      jerry_ref_unused_variables (0, __VA_ARGS__); \
-    } \
     jerry_unimplemented (comment, __FILE__, __func__, __LINE__); \
   } while (0)
 #else /* JERRY_NDEBUG */
@@ -157,7 +151,7 @@ extern void jerry_ref_unused_variables (void *, ...);
 #define JERRY_UNIMPLEMENTED_REF_UNUSED_VARS(comment, ...) \
   do \
   { \
-    if (false) \
+    if (0) \
     { \
       jerry_ref_unused_variables (0, __VA_ARGS__); \
     } \

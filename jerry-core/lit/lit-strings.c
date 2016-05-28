@@ -496,7 +496,7 @@ lit_utf8_decr (const lit_utf8_byte_t **buf_p) /**< [in,out] buffer with characte
  *
  * @return ecma-string's hash
  */
-inline lit_string_hash_t __attr_always_inline___
+lit_string_hash_t
 lit_utf8_string_hash_combine (lit_string_hash_t hash_basis, /**< hash to be combined with */
                               const lit_utf8_byte_t *utf8_buf_p, /**< characters buffer */
                               lit_utf8_size_t utf8_buf_size) /**< number of characters in the buffer */
@@ -519,7 +519,7 @@ lit_utf8_string_hash_combine (lit_string_hash_t hash_basis, /**< hash to be comb
  *
  * @return ecma-string's hash
  */
-inline lit_string_hash_t __attr_always_inline___
+lit_string_hash_t
 lit_utf8_string_calc_hash (const lit_utf8_byte_t *utf8_buf_p, /**< characters buffer */
                            lit_utf8_size_t utf8_buf_size) /**< number of characters in the buffer */
 {
