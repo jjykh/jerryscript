@@ -114,26 +114,27 @@
   }
 
 /* ecma-helpers-value.c */
-extern bool ecma_is_value_empty (ecma_value_t);
-extern bool ecma_is_value_undefined (ecma_value_t);
-extern bool ecma_is_value_null (ecma_value_t);
-extern bool ecma_is_value_boolean (ecma_value_t);
-extern bool ecma_is_value_true (ecma_value_t);
-extern bool ecma_is_value_false (ecma_value_t);
-extern bool ecma_is_value_array_hole (ecma_value_t);
+extern bool ecma_is_value_simple (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_empty (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_undefined (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_null (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_boolean (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_true (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_false (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_array_hole (ecma_value_t) __attr_pure___;
 
-extern bool ecma_is_value_integer_number (ecma_value_t);
-extern bool ecma_are_values_integer_numbers (ecma_value_t, ecma_value_t);
-extern bool ecma_is_value_float_number (ecma_value_t);
-extern bool ecma_is_value_number (ecma_value_t);
-extern bool ecma_is_value_string (ecma_value_t);
-extern bool ecma_is_value_object (ecma_value_t);
-extern bool ecma_is_value_error (ecma_value_t);
+extern bool ecma_is_value_integer_number (ecma_value_t) __attr_pure___;
+extern bool ecma_are_values_integer_numbers (ecma_value_t, ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_float_number (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_number (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_string (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_object (ecma_value_t) __attr_pure___;
+extern bool ecma_is_value_error (ecma_value_t) __attr_pure___;
 
 extern void ecma_check_value_type_is_spec_defined (ecma_value_t);
 
-extern ecma_value_t ecma_make_simple_value (const ecma_simple_value_t value);
-extern ecma_value_t ecma_make_integer_value (ecma_integer_value_t);
+extern ecma_value_t ecma_make_simple_value (const ecma_simple_value_t value) __attr_const___;
+extern ecma_value_t ecma_make_integer_value (ecma_integer_value_t) __attr_const___;
 extern ecma_value_t ecma_make_nan_value (void);
 extern ecma_value_t ecma_make_number_value (ecma_number_t);
 extern ecma_value_t ecma_make_int32_value (int32_t);
@@ -142,12 +143,14 @@ extern ecma_value_t ecma_make_string_value (const ecma_string_t *);
 extern ecma_value_t ecma_make_object_value (const ecma_object_t *);
 extern ecma_value_t ecma_make_error_value (ecma_value_t);
 extern ecma_value_t ecma_make_error_obj_value (const ecma_object_t *);
-extern ecma_integer_value_t ecma_get_integer_from_value (ecma_value_t);
+extern ecma_integer_value_t ecma_get_integer_from_value (ecma_value_t) __attr_pure___;
+extern ecma_number_t ecma_get_float_from_value (ecma_value_t value) __attr_pure___;
 extern ecma_number_t ecma_get_number_from_value (ecma_value_t) __attr_pure___;
 extern uint32_t ecma_get_uint32_from_value (ecma_value_t) __attr_pure___;
 extern ecma_string_t *ecma_get_string_from_value (ecma_value_t) __attr_pure___;
 extern ecma_object_t *ecma_get_object_from_value (ecma_value_t) __attr_pure___;
 extern ecma_value_t ecma_get_value_from_error_value (ecma_value_t) __attr_pure___;
+extern ecma_value_t ecma_invert_boolean_value (ecma_value_t) __attr_pure___;
 extern ecma_value_t ecma_copy_value (ecma_value_t);
 extern ecma_value_t ecma_fast_copy_value (ecma_value_t);
 extern ecma_value_t ecma_copy_value_if_not_object (ecma_value_t);
@@ -263,9 +266,9 @@ extern ecma_property_t *ecma_find_internal_property (ecma_object_t *, ecma_inter
 extern ecma_property_t *ecma_get_internal_property (ecma_object_t *, ecma_internal_property_id_t);
 
 extern ecma_property_t *
-ecma_create_named_data_property (ecma_object_t *, ecma_string_t *, bool, bool, bool);
+ecma_create_named_data_property (ecma_object_t *, ecma_string_t *, uint8_t);
 extern ecma_property_t *
-ecma_create_named_accessor_property (ecma_object_t *, ecma_string_t *, ecma_object_t *, ecma_object_t *, bool, bool);
+ecma_create_named_accessor_property (ecma_object_t *, ecma_string_t *, ecma_object_t *, ecma_object_t *, uint8_t);
 extern ecma_property_t *
 ecma_find_named_property (ecma_object_t *, ecma_string_t *);
 extern ecma_property_t *

@@ -73,12 +73,12 @@ typedef enum
    *   - immutable binding values
    *   - special register or stack values for vm
    */
-  ECMA_SIMPLE_VALUE_EMPTY,
-  ECMA_SIMPLE_VALUE_UNDEFINED, /**< undefined value */
-  ECMA_SIMPLE_VALUE_NULL, /**< null value */
+  ECMA_SIMPLE_VALUE_EMPTY, /**< uninitialized value */
+  ECMA_SIMPLE_VALUE_ARRAY_HOLE, /**< array hole, used for initialization of an array literal */
   ECMA_SIMPLE_VALUE_FALSE, /**< boolean false */
   ECMA_SIMPLE_VALUE_TRUE, /**< boolean true */
-  ECMA_SIMPLE_VALUE_ARRAY_HOLE, /**< array hole, used for initialization of an array literal */
+  ECMA_SIMPLE_VALUE_UNDEFINED, /**< undefined value */
+  ECMA_SIMPLE_VALUE_NULL, /**< null value */
   ECMA_SIMPLE_VALUE_REGISTER_REF, /**< register reference, a special "base" value for vm */
   ECMA_SIMPLE_VALUE__COUNT /** count of simple ecma values */
 } ecma_simple_value_t;
@@ -290,6 +290,29 @@ typedef enum
   ECMA_PROPERTY_FLAG_WRITABLE = 1u << (ECMA_PROPERTY_FLAG_SHIFT + 2), /**< property is writable */
   ECMA_PROPERTY_FLAG_LCACHED = 1u << (ECMA_PROPERTY_FLAG_SHIFT + 3), /**< property is lcached */
 } ecma_property_flags_t;
+
+/**
+ * Property flags configurable, enumerable, writable.
+ */
+#define ECMA_PROPERTY_CONFIGURABLE_ENUMERABLE_WRITABLE \
+  (ECMA_PROPERTY_FLAG_CONFIGURABLE | ECMA_PROPERTY_FLAG_ENUMERABLE | ECMA_PROPERTY_FLAG_WRITABLE)
+
+/**
+ * Property flags configurable, enumerable.
+ */
+#define ECMA_PROPERTY_CONFIGURABLE_ENUMERABLE \
+  (ECMA_PROPERTY_FLAG_CONFIGURABLE | ECMA_PROPERTY_FLAG_ENUMERABLE)
+
+/**
+ * Property flags configurable, enumerable.
+ */
+#define ECMA_PROPERTY_CONFIGURABLE_WRITABLE \
+  (ECMA_PROPERTY_FLAG_CONFIGURABLE | ECMA_PROPERTY_FLAG_WRITABLE)
+
+/**
+ * No attributes can be changed for this property.
+ */
+#define ECMA_PROPERTY_FIXED 0
 
 /**
  * Abstract property representation.
@@ -756,7 +779,6 @@ typedef enum
   ECMA_STRING_CONTAINER_LIT_TABLE, /**< actual data is in literal table */
   ECMA_STRING_CONTAINER_HEAP_ASCII_STRING, /**< actual data is on the heap as an ascii string */
   ECMA_STRING_CONTAINER_HEAP_UTF8_STRING, /**< actual data is on the heap as an utf-8 string */
-  ECMA_STRING_CONTAINER_HEAP_NUMBER, /**< actual data is on the heap as a ecma_number_t */
   ECMA_STRING_CONTAINER_UINT32_IN_DESC, /**< actual data is UInt32-represeneted Number
                                              stored locally in the string's descriptor */
   ECMA_STRING_CONTAINER_MAGIC_STRING, /**< the ecma-string is equal to one of ECMA magic strings */
