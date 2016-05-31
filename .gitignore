@@ -47,3 +47,6 @@ targets/esp8266/libs
 
 # Generated documentation
 docs/doxygen
+
+#win32 port
+jr

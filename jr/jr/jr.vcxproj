@@ -132,6 +132,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\kanghuay\git\jerryscript\jerry-core;C:\Users\kanghuay\git\jerryscript\jerry-core\ecma\base;C:\Users\kanghuay\git\jerryscript\targets\win32;C:\Users\kanghuay\git\jerryscript\jerry-core\ecma\builtin-objects;C:\Users\kanghuay\git\jerryscript\jerry-core\ecma\operations;C:\Users\kanghuay\git\jerryscript\jerry-core\jmem;C:\Users\kanghuay\git\jerryscript\jerry-core\jrt;C:\Users\kanghuay\git\jerryscript\jerry-core\lit;C:\Users\kanghuay\git\jerryscript\jerry-core\parser\js;C:\Users\kanghuay\git\jerryscript\jerry-core\parser\regexp;C:\Users\kanghuay\git\jerryscript\jerry-core\vm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

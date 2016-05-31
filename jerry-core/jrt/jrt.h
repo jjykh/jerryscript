@@ -26,7 +26,6 @@
 #ifdef _MSC_VER
 #define __attribute__(x)	/**/
 #define __builtin_expect(e, f)	e
-#define __aligned(x)	__declspec(align(x))
 #endif
 
 /**
