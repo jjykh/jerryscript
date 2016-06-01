@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <time.h>
+#include <sys/timeb.h>
 #include <windows.h>
 
 #include "jerry-port.h"
@@ -25,9 +25,11 @@
  */
 bool jerry_port_get_time_zone (jerry_time_zone_t *tz_p)
 {
+  struct _timeb tb;
+  _ftime64_s(&tb);
   
-  tz_p->offset = _timezone;
-  tz_p->daylight_saving_time = _dstbias;
+  tz_p->offset = tb.timezone;
+  tz_p->daylight_saving_time = tb.dstflag;
 
   return true;
 } /* jerry_port_get_time_zone */
@@ -37,8 +39,8 @@ bool jerry_port_get_time_zone (jerry_time_zone_t *tz_p)
  */
 double jerry_port_get_current_time ()
 {
-	struct _timespec64 tv;
-	_timespec64_get(&tv, 0);
+  struct _timeb tb;
+  _ftime64_s(&tb);
 
-  return ((double) tv.tv_sec) * 1000.0 + ((double) tv.tv_nsec) / 1000000.0;
+  return ((double) tb.time) * 1000.0 + tb.millitm;
 } /* jerry_port_get_current_time */
