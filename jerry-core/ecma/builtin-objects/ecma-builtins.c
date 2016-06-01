@@ -512,7 +512,6 @@ ecma_builtin_make_function_object_for_routine (ecma_builtin_id_t builtin_id, /**
 #define ecma_builtin_regexp_prototype_dispatch_construct(a,b) 0
 #define ecma_builtin_error_prototype_dispatch_call(a,b) 0
 #define ecma_builtin_error_prototype_dispatch_construct(a,b) 0
-
 #define ecma_builtin_eval_error_prototype_dispatch_call(a,b) 0
 #define ecma_builtin_eval_error_prototype_dispatch_construct(a,b) 0
 #define ecma_builtin_range_error_prototype_dispatch_call(a,b) 0
