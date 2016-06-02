@@ -49,4 +49,5 @@ targets/esp8266/libs
 docs/doxygen
 
 #win32 port
-jr
+jr/.vs
+
