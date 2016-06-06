@@ -11,7 +11,7 @@
 /**
 * Maximum size of source code / snapshots buffer
 */
-#define JERRY_BUFFER_SIZE (1048576)
+#define JERRY_BUFFER_SIZE (4*1024*1024)
 
 /**
 * Standalone Jerry exit codes
@@ -100,6 +100,54 @@ print_help(char *name)
 		"\n",
 		name);
 } /* print_help */
+
+static bool
+load_handler(const jerry_api_object_t *function_obj_p, /**< function object */
+	const jerry_api_value_t *this_p, /**< this arg */
+	jerry_api_value_t *ret_val_p, /**< return argument */
+	const jerry_api_value_t args_p[], /**< function arguments */
+	const jerry_api_length_t args_cnt) /**< number of function arguments */
+{
+	if (args_cnt == 1
+		&& args_p[0].type == JERRY_API_DATA_TYPE_STRING)
+	{
+		jerry_api_char_t str_buf[256];
+		jerry_api_size_t str_size = jerry_api_get_string_size(args_p[0].u.v_string);
+		assert(str_size < 256);
+		jerry_api_size_t sz = jerry_api_string_to_char_buffer(args_p[0].u.v_string, str_buf, str_size);
+		assert(sz == str_size);
+		str_buf[str_size] = 0;
+
+		size_t source_size;
+		const jerry_api_char_t *source_p = read_file((char *) str_buf, &source_size);
+		if (source_p == NULL) goto err;
+
+		jerry_api_object_t *err_obj_p;
+		jerry_api_value_t err_val;
+		if (!jerry_parse(source_p, source_size, &err_obj_p)) goto err;
+		if (jerry_run(&err_val) != JERRY_COMPLETION_CODE_OK) goto err;
+
+		return true;
+	}
+err:
+	jerry_port_errormsg("Error loading file\n");
+	return false;
+}
+
+static void init_funcs(void) {
+	jerry_api_object_t *global_obj_p = jerry_api_get_global();
+	jerry_api_object_t *assert_func_p = jerry_api_create_external_function(load_handler);
+	jerry_api_value_t v;
+	v.type = JERRY_API_DATA_TYPE_OBJECT;
+	v.u.v_object = assert_func_p;
+
+	jerry_api_set_object_field_value(global_obj_p, (jerry_api_char_t *) "load", &v);
+	jerry_api_release_value(&v);
+
+
+
+	jerry_api_release_object(global_obj_p);
+}
 
 int
 main(int argc,
@@ -292,6 +340,8 @@ main(int argc,
 #endif /* JERRY_ENABLE_LOG */
 
 	jerry_init(flags);
+
+	init_funcs();
 
 	jerry_api_object_t *global_obj_p = jerry_api_get_global();
 	jerry_api_object_t *assert_func_p = jerry_api_create_external_function(assert_handler);
