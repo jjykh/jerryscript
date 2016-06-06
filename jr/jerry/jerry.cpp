@@ -120,16 +120,21 @@ load_handler(const jerry_api_object_t *function_obj_p, /**< function object */
 
 		size_t source_size;
 		const jerry_api_char_t *source_p = read_file((char *) str_buf, &source_size);
-		if (source_p == NULL) goto err;
+		if (source_p == NULL)
+		{
+			jerry_port_errormsg("Error loading file: %s\n", (char *) str_buf);
+			return false;
+		}
 
-		jerry_api_object_t *err_obj_p;
 		jerry_api_value_t err_val;
-		if (!jerry_parse(source_p, source_size, &err_obj_p)) goto err;
-		if (jerry_run(&err_val) != JERRY_COMPLETION_CODE_OK) goto err;
+		if (jerry_api_eval(source_p, source_size, true, false, &err_val) != JERRY_COMPLETION_CODE_OK)
+		{
+			jerry_port_errormsg("Error run file: %s\n", (char *) str_buf);
+			return false;
+		}
 
 		return true;
 	}
-err:
 	jerry_port_errormsg("Error loading file\n");
 	return false;
 }
