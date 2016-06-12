@@ -1135,16 +1135,17 @@ parse_print_final_cbc (ecma_compiled_code_t *compiled_code_p, /**< compiled code
         continue;
       }
 
-      if (opcode == CBC_PUSH_NUMBER_1)
+      if (opcode == CBC_PUSH_NUMBER_POS_BYTE)
       {
         int value = *byte_code_p++;
+        printf (" number:%d\n", value + 1);
+        continue;
+      }
 
-        if (value >= CBC_PUSH_NUMBER_1_RANGE_END)
-        {
-          value = -(value - CBC_PUSH_NUMBER_1_RANGE_END);
-        }
-
-        printf (" number:%d\n", value);
+      if (opcode == CBC_PUSH_NUMBER_NEG_BYTE)
+      {
+        int value = *byte_code_p++;
+        printf (" number:%d\n", -(value + 1));
         continue;
       }
     }
@@ -2240,21 +2241,21 @@ parser_set_show_instrs (int show_instrs) /**< flag indicating whether to dump by
  * Parse EcamScript source code
  *
  * Note:
- *      returned error object should be freed with jerry_api_release_object
+ *      returned error object should be freed with jerry_release_object
  */
 jsp_status_t
-parser_parse_script (const jerry_api_char_t *source_p, /**< source code */
+parser_parse_script (const jerry_char_t *source_p, /**< source code */
                      size_t size, /**< size of the source code */
                      ecma_compiled_code_t **bytecode_data_p, /**< [out] JS bytecode */
-                     jerry_api_object_t **error_obj_p) /**< [out] error object */
+                     jerry_object_t **error_obj_p) /**< [out] error object */
 {
   parser_error_location parse_error;
   *bytecode_data_p = parser_parse_source (source_p, size, false, &parse_error);
 
   if (!*bytecode_data_p)
   {
-    *error_obj_p = jerry_api_create_error (JERRY_API_ERROR_SYNTAX,
-                                           (const jerry_api_char_t *) parser_error_to_string (parse_error.error));
+    *error_obj_p = jerry_create_error (JERRY_ERROR_SYNTAX,
+                                       (const jerry_char_t *) parser_error_to_string (parse_error.error));
     return JSP_STATUS_SYNTAX_ERROR;
   }
 
@@ -2265,22 +2266,22 @@ parser_parse_script (const jerry_api_char_t *source_p, /**< source code */
  * Parse EcamScript eval source code
  *
  * Note:
- *      returned error object should be freed with jerry_api_release_object
+ *      returned error object should be freed with jerry_release_object
  */
 jsp_status_t
-parser_parse_eval (const jerry_api_char_t *source_p, /**< source code */
+parser_parse_eval (const jerry_char_t *source_p, /**< source code */
                    size_t size, /**< size of the source code */
                    bool is_strict, /**< strict mode */
                    ecma_compiled_code_t **bytecode_data_p, /**< [out] JS bytecode */
-                   jerry_api_object_t **error_obj_p) /**< [out] error object */
+                   jerry_object_t **error_obj_p) /**< [out] error object */
 {
   parser_error_location parse_error;
   *bytecode_data_p = parser_parse_source (source_p, size, is_strict, &parse_error);
 
   if (!*bytecode_data_p)
   {
-    *error_obj_p = jerry_api_create_error (JERRY_API_ERROR_SYNTAX,
-                                           (const jerry_api_char_t *) parser_error_to_string (parse_error.error));
+    *error_obj_p = jerry_create_error (JERRY_ERROR_SYNTAX,
+                                       (const jerry_char_t *) parser_error_to_string (parse_error.error));
     return JSP_STATUS_SYNTAX_ERROR;
   }
 

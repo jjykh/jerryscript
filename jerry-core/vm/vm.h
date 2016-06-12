@@ -43,11 +43,6 @@
  */
 
 /**
- * Opcode has branch argument
- */
-#define VM_OC_HAS_BRANCH_ARG 0x8000
-
-/**
  * Branch argument is a backward branch
  */
 #define VM_OC_BACKWARD_BRANCH 0x4000
@@ -83,14 +78,15 @@
 typedef enum
 {
   VM_OC_GET_NONE = VM_OC_GET_ARGS_CREATE_INDEX (0),             /**< do nothing */
-  VM_OC_GET_STACK = VM_OC_GET_ARGS_CREATE_INDEX (1),            /**< pop one element from the stack */
-  VM_OC_GET_STACK_STACK = VM_OC_GET_ARGS_CREATE_INDEX (2),      /**< pop two elements from the stack */
+  VM_OC_GET_BRANCH = VM_OC_GET_ARGS_CREATE_INDEX (1),           /**< branch argument */
+  VM_OC_GET_STACK = VM_OC_GET_ARGS_CREATE_INDEX (2),            /**< pop one element from the stack */
+  VM_OC_GET_STACK_STACK = VM_OC_GET_ARGS_CREATE_INDEX (3),      /**< pop two elements from the stack */
 
-  VM_OC_GET_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (3),          /**< resolve literal */
-  VM_OC_GET_LITERAL_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (4),  /**< resolve two literals */
-  VM_OC_GET_STACK_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (5),    /**< pop one element from the stack
+  VM_OC_GET_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (4),          /**< resolve literal */
+  VM_OC_GET_LITERAL_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (5),  /**< resolve two literals */
+  VM_OC_GET_STACK_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (6),    /**< pop one element from the stack
                                                                  *   and resolve a literal */
-  VM_OC_GET_THIS_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (6),     /**< get this and resolve a literal */
+  VM_OC_GET_THIS_LITERAL = VM_OC_GET_ARGS_CREATE_INDEX (7),     /**< get this and resolve a literal */
 } vm_oc_get_types;
 
 /**
@@ -119,7 +115,9 @@ typedef enum
   VM_OC_PUSH_FALSE,              /**< push false value */
   VM_OC_PUSH_NULL,               /**< push null value */
   VM_OC_PUSH_THIS,               /**< push this */
-  VM_OC_PUSH_NUMBER,             /**< push number */
+  VM_OC_PUSH_NUMBER_0,           /**< push number zero */
+  VM_OC_PUSH_NUMBER_POS_BYTE,    /**< push number between 1 and 256 */
+  VM_OC_PUSH_NUMBER_NEG_BYTE,    /**< push number between -1 and -256 */
   VM_OC_PUSH_OBJECT,             /**< push object */
   VM_OC_SET_PROPERTY,            /**< set property */
   VM_OC_SET_GETTER,              /**< set getter */
