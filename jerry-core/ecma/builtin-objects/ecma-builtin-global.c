@@ -61,10 +61,11 @@
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_print (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_print (ecma_value_t this_arg, /**< this argument */
                                   const ecma_value_t args[], /**< arguments list */
                                   ecma_length_t args_number) /**< number of arguments */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   /* TODO: Move the 'print' routine out of engine core. */
@@ -85,8 +86,7 @@ ecma_builtin_global_object_print (ecma_value_t this_arg __attr_unused___, /**< t
                              utf8_str_size,
                              lit_utf8_byte_t);
 
-    lit_utf8_size_t actual_sz = ecma_string_to_utf8_string (str_p, utf8_str_p, utf8_str_size);
-    JERRY_ASSERT (actual_sz == utf8_str_size);
+    ecma_string_to_utf8_bytes (str_p, utf8_str_p, utf8_str_size);
 
     const lit_utf8_byte_t *utf8_str_curr_p = utf8_str_p;
     const lit_utf8_byte_t *utf8_str_end_p = utf8_str_p + utf8_str_size;
@@ -149,9 +149,10 @@ ecma_builtin_global_object_print (ecma_value_t this_arg __attr_unused___, /**< t
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_eval (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_eval (ecma_value_t this_arg, /**< this argument */
                                  ecma_value_t x) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   bool is_direct_eval = vm_is_direct_eval_form_call ();
@@ -193,10 +194,11 @@ ecma_builtin_global_object_eval (ecma_value_t this_arg __attr_unused___, /**< th
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_parse_int (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_parse_int (ecma_value_t this_arg, /**< this argument */
                                       ecma_value_t string, /**< routine's first argument */
                                       ecma_value_t radix) /**< routine's second argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   /* 1. */
@@ -404,9 +406,10 @@ ecma_builtin_global_object_parse_int (ecma_value_t this_arg __attr_unused___, /*
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_parse_float (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_parse_float (ecma_value_t this_arg, /**< this argument */
                                         ecma_value_t string) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   /* 1. */
@@ -622,9 +625,10 @@ ecma_builtin_global_object_parse_float (ecma_value_t this_arg __attr_unused___, 
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_is_nan (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_is_nan (ecma_value_t this_arg, /**< this argument */
                                    ecma_value_t arg) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   ECMA_OP_TO_NUMBER_TRY_CATCH (arg_num, arg, ret_value);
@@ -649,9 +653,10 @@ ecma_builtin_global_object_is_nan (ecma_value_t this_arg __attr_unused___, /**< 
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_is_finite (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_is_finite (ecma_value_t this_arg, /**< this argument */
                                       ecma_value_t arg) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   ECMA_OP_TO_NUMBER_TRY_CATCH (arg_num, arg, ret_value);
@@ -721,9 +726,10 @@ static const uint8_t unescaped_uri_component_set[16] =
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_decode_uri_helper (ecma_value_t uri __attr_unused___, /**< uri argument */
+ecma_builtin_global_object_decode_uri_helper (ecma_value_t uri, /**< uri argument */
                                               const uint8_t *reserved_uri_bitset) /**< reserved characters bitset */
 {
+  JERRY_UNUSED (uri);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   ECMA_TRY_CATCH (string,
@@ -739,10 +745,7 @@ ecma_builtin_global_object_decode_uri_helper (ecma_value_t uri __attr_unused___,
                            input_size + 1,
                            lit_utf8_byte_t);
 
-  lit_utf8_size_t sz = ecma_string_to_utf8_string (input_string_p,
-                                                   input_start_p,
-                                                   input_size);
-  JERRY_ASSERT (sz == input_size);
+  ecma_string_to_utf8_bytes (input_string_p, input_start_p, input_size);
 
   input_start_p[input_size] = LIT_BYTE_NULL;
 
@@ -953,9 +956,10 @@ ecma_builtin_global_object_decode_uri_helper (ecma_value_t uri __attr_unused___,
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_decode_uri (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_decode_uri (ecma_value_t this_arg, /**< this argument */
                                        ecma_value_t encoded_uri) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   return ecma_builtin_global_object_decode_uri_helper (encoded_uri, unescaped_uri_set);
 } /* ecma_builtin_global_object_decode_uri */
 
@@ -969,10 +973,11 @@ ecma_builtin_global_object_decode_uri (ecma_value_t this_arg __attr_unused___, /
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_decode_uri_component (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_decode_uri_component (ecma_value_t this_arg, /**< this argument */
                                                  ecma_value_t encoded_uri_component) /**< routine's
                                                                                       *   first argument */
 {
+  JERRY_UNUSED (this_arg);
   return ecma_builtin_global_object_decode_uri_helper (encoded_uri_component, unescaped_uri_component_set);
 } /* ecma_builtin_global_object_decode_uri_component */
 
@@ -1017,10 +1022,7 @@ ecma_builtin_global_object_encode_uri_helper (ecma_value_t uri, /**< uri argumen
                            input_size,
                            lit_utf8_byte_t);
 
-  lit_utf8_size_t sz = ecma_string_to_utf8_string (input_string_p,
-                                                   input_start_p,
-                                                   input_size);
-  JERRY_ASSERT (sz == input_size);
+  ecma_string_to_utf8_bytes (input_string_p, input_start_p, input_size);
 
   /*
    * The URI encoding has two major phases: first we validate the input,
@@ -1166,9 +1168,10 @@ ecma_builtin_global_object_encode_uri_helper (ecma_value_t uri, /**< uri argumen
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_encode_uri (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_encode_uri (ecma_value_t this_arg, /**< this argument */
                                        ecma_value_t uri) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   return ecma_builtin_global_object_encode_uri_helper (uri, unescaped_uri_set);
 } /* ecma_builtin_global_object_encode_uri */
 
@@ -1182,9 +1185,10 @@ ecma_builtin_global_object_encode_uri (ecma_value_t this_arg __attr_unused___, /
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_encode_uri_component (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_encode_uri_component (ecma_value_t this_arg, /**< this argument */
                                                  ecma_value_t uri_component) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   return ecma_builtin_global_object_encode_uri_helper (uri_component, unescaped_uri_component_set);
 } /* ecma_builtin_global_object_encode_uri_component */
 
@@ -1222,9 +1226,10 @@ static const uint8_t ecma_escape_set[16] =
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_escape (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_escape (ecma_value_t this_arg, /**< this argument */
                                    ecma_value_t arg) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   ECMA_TRY_CATCH (string,
@@ -1238,10 +1243,7 @@ ecma_builtin_global_object_escape (ecma_value_t this_arg __attr_unused___, /**< 
                            input_size,
                            lit_utf8_byte_t);
 
-  lit_utf8_size_t sz = ecma_string_to_utf8_string (input_string_p,
-                                                   input_start_p,
-                                                   input_size);
-  JERRY_ASSERT (sz == input_size);
+  ecma_string_to_utf8_bytes (input_string_p, input_start_p, input_size);
 
   /*
    * The escape routine has two major phases: first we compute
@@ -1345,9 +1347,10 @@ ecma_builtin_global_object_escape (ecma_value_t this_arg __attr_unused___, /**< 
  *         Returned value must be freed with ecma_free_value.
  */
 static ecma_value_t
-ecma_builtin_global_object_unescape (ecma_value_t this_arg __attr_unused___, /**< this argument */
+ecma_builtin_global_object_unescape (ecma_value_t this_arg, /**< this argument */
                                      ecma_value_t arg) /**< routine's first argument */
 {
+  JERRY_UNUSED (this_arg);
   ecma_value_t ret_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
 
   /* 1. */
@@ -1358,8 +1361,7 @@ ecma_builtin_global_object_unescape (ecma_value_t this_arg __attr_unused___, /**
 
   /* 3. */
   JMEM_DEFINE_LOCAL_ARRAY (input_start_p, input_size, lit_utf8_byte_t);
-  lit_utf8_size_t sz = ecma_string_to_utf8_string (input_string_p, input_start_p, input_size);
-  JERRY_ASSERT (sz == input_size);
+  ecma_string_to_utf8_bytes (input_string_p, input_start_p, input_size);
 
   const lit_utf8_byte_t *input_curr_p = input_start_p;
   const lit_utf8_byte_t *input_end_p = input_start_p + input_size;

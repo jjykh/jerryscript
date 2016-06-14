@@ -31,7 +31,6 @@
 /**
  * Attributes
  */
-#define __attr_unused___ __attribute__((unused))
 #define __noreturn __attribute__((noreturn))
 #define __attr_noinline___ __attribute__((noinline))
 #define __attr_return_value_should_be_checked___ __attribute__((warn_unused_result))
@@ -81,6 +80,8 @@ extern void __noreturn jerry_unimplemented (const char *, const char *, const ch
 #else /* JERRY_NDEBUG */
 #define JERRY_ASSERT(x) do {} while (0)
 #endif /* !JERRY_NDEBUG */
+
+#define JERRY_UNUSED(x) ((void) (x))
 
 #ifdef JERRY_ENABLE_LOG
 #define JERRY_LOG(lvl, ...) \
