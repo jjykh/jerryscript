@@ -73,6 +73,43 @@ static ecma_value_t
 vm_op_get_value (ecma_value_t object, /**< base object */
                  ecma_value_t property) /**< property name */
 {
+  if (ecma_is_value_object (object))
+  {
+    ecma_object_t *object_p = ecma_get_object_from_value (object);
+    ecma_string_t *property_name_p = NULL;
+    ecma_string_t uint32_string;
+
+    if (ecma_is_value_integer_number (property))
+    {
+      ecma_integer_value_t int_value = ecma_get_integer_from_value (property);
+
+      if (int_value >= 0)
+      {
+        /* Statically allocated string for searching. */
+        ecma_init_ecma_string_from_uint32 (&uint32_string, (uint32_t) int_value);
+        property_name_p = &uint32_string;
+      }
+    }
+    else if (ecma_is_value_string (property))
+    {
+      property_name_p = ecma_get_string_from_value (property);
+    }
+
+    if (property_name_p != NULL)
+    {
+      ecma_property_t *property_p = ecma_lcache_lookup (object_p, property_name_p);
+
+      if (property_p != NULL &&
+          ECMA_PROPERTY_GET_TYPE (property_p) == ECMA_PROPERTY_TYPE_NAMEDDATA)
+      {
+        return ecma_fast_copy_value (ecma_get_named_data_property_value (property_p));
+      }
+
+      /* There is no need to free the name. */
+      return ecma_op_get_value_object_base (object, property_name_p);
+    }
+  }
+
   if (unlikely (ecma_is_value_undefined (object) || ecma_is_value_null (object)))
   {
     return ecma_raise_type_error (ECMA_ERR_MSG (""));
@@ -80,26 +117,12 @@ vm_op_get_value (ecma_value_t object, /**< base object */
 
   ecma_value_t prop_to_string_result = ecma_op_to_string (property);
 
-  if (ecma_is_value_error (prop_to_string_result))
+  if (ECMA_IS_VALUE_ERROR (prop_to_string_result))
   {
     return prop_to_string_result;
   }
 
   ecma_string_t *property_name_p = ecma_get_string_from_value (prop_to_string_result);
-
-  if (ecma_is_value_object (object))
-  {
-    ecma_object_t *object_p = ecma_get_object_from_value (object);
-
-    ecma_property_t *property_p = ecma_lcache_lookup (object_p, property_name_p);
-
-    if (property_p != NULL &&
-        ECMA_PROPERTY_GET_TYPE (property_p) == ECMA_PROPERTY_TYPE_NAMEDDATA)
-    {
-      ecma_deref_ecma_string (property_name_p);
-      return ecma_fast_copy_value (ecma_get_named_data_property_value (property_p));
-    }
-  }
 
   ecma_value_t get_value_result = ecma_op_get_value_object_base (object, property_name_p);
 
@@ -202,7 +225,7 @@ vm_run_global (ecma_value_t *error_value_p) /**< [out] error value */
                                    NULL,
                                    0);
 
-  if (ecma_is_value_error (ret_value))
+  if (ECMA_IS_VALUE_ERROR (ret_value))
   {
     *error_value_p = ret_value;
     ret_code = JERRY_COMPLETION_CODE_UNHANDLED_EXCEPTION;
@@ -210,7 +233,7 @@ vm_run_global (ecma_value_t *error_value_p) /**< [out] error value */
   else
   {
     ecma_free_value (ret_value);
-    *error_value_p = ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
+    *error_value_p = ecma_make_simple_value (ECMA_SIMPLE_VALUE_UNDEFINED);
     ret_code = JERRY_COMPLETION_CODE_OK;
   }
 
@@ -298,7 +321,7 @@ vm_construct_literal_object (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
     ecma_value_t ret_value;
     ret_value = ecma_op_create_regexp_object_from_bytecode ((re_compiled_code_t *) bytecode_p);
 
-    if (ecma_is_value_error (ret_value))
+    if (ECMA_IS_VALUE_ERROR (ret_value))
     {
       /* TODO: throw exception instead of define an 'undefined' value. */
       return ecma_make_simple_value (ECMA_SIMPLE_VALUE_UNDEFINED);
@@ -328,7 +351,7 @@ vm_get_implicit_this_value (ecma_value_t *this_value_p) /**< [in,out] this value
     {
       ecma_value_t completion_value = ecma_op_implicit_this_value (this_obj_p);
 
-      JERRY_ASSERT (!ecma_is_value_error (completion_value));
+      JERRY_ASSERT (!ECMA_IS_VALUE_ERROR (completion_value));
 
       *this_value_p = completion_value;
       return true;
@@ -501,7 +524,7 @@ opfunc_construct (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         \
         ecma_deref_ecma_string (name_p); \
         \
-        if (ecma_is_value_error (result)) \
+        if (ECMA_IS_VALUE_ERROR (result)) \
         { \
           goto error; \
         } \
@@ -955,7 +978,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           {
             result = ecma_op_to_string (right_value);
 
-            if (ecma_is_value_error (result))
+            if (ECMA_IS_VALUE_ERROR (result))
             {
               goto error;
             }
@@ -1001,7 +1024,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = ecma_op_create_array_object (NULL, 0, false);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1106,7 +1129,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
               result = ecma_raise_reference_error (ECMA_ERR_MSG (""));
             }
 
-            if (ecma_is_value_error (result))
+            if (ECMA_IS_VALUE_ERROR (result))
             {
               ecma_deref_ecma_string (name_p);
               goto error;
@@ -1152,7 +1175,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           result = vm_op_get_value (left_value,
                                     right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             if (opcode >= CBC_PUSH_PROP_REFERENCE && opcode < CBC_PRE_INCR)
             {
@@ -1186,7 +1209,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
 
           result = ecma_op_to_number (left_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1385,7 +1408,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           result = *(--stack_top_p);
           block_result = frame_ctx_p->call_block_result;
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1426,7 +1449,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           result = *(--stack_top_p);
           block_result = frame_ctx_p->call_block_result;
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1438,7 +1461,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = vm_op_delete_prop (left_value, right_value, is_strict);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1464,7 +1487,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                      frame_ctx_p->lex_env_p,
                                      is_strict);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1526,7 +1549,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_unary_plus (left_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1538,7 +1561,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_unary_minus (left_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1550,7 +1573,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_logical_not (left_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1564,7 +1587,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             left_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1609,7 +1632,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
 
             ecma_deref_ecma_string (name_p);
 
-            if (ecma_is_value_error (result))
+            if (ECMA_IS_VALUE_ERROR (result))
             {
               goto error;
             }
@@ -1622,7 +1645,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_typeof (left_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1634,7 +1657,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_addition (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1646,7 +1669,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                          left_value,
                                          right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1658,7 +1681,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                          left_value,
                                          right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1670,7 +1693,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                          left_value,
                                          right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1682,7 +1705,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                          left_value,
                                          right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1692,7 +1715,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_equal_value (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1704,7 +1727,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_not_equal_value (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1738,7 +1761,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1750,7 +1773,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1762,7 +1785,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1774,7 +1797,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1786,7 +1809,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1798,7 +1821,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                             left_value,
                                             right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1808,7 +1831,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_less_than (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1820,7 +1843,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_greater_than (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1832,7 +1855,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_less_or_equal_than (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1844,7 +1867,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_greater_or_equal_than (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1856,7 +1879,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_in (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1868,7 +1891,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         {
           result = opfunc_instanceof (left_value, right_value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -1889,7 +1912,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           result = ecma_op_to_object (value);
           ecma_free_value (value);
 
-          if (ecma_is_value_error (result))
+          if (ECMA_IS_VALUE_ERROR (result))
           {
             goto error;
           }
@@ -2152,7 +2175,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
 
           ecma_deref_ecma_string (var_name_str_p);
 
-          if (ecma_is_value_error (put_value_result))
+          if (ECMA_IS_VALUE_ERROR (put_value_result))
           {
             ecma_free_value (result);
             result = put_value_result;
@@ -2191,7 +2214,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           ecma_free_value (object);
           ecma_free_value (property);
 
-          if (ecma_is_value_error (set_value_result))
+          if (ECMA_IS_VALUE_ERROR (set_value_result))
           {
             ecma_free_value (result);
             result = set_value_result;
@@ -2225,7 +2248,7 @@ error:
     ecma_fast_free_value (left_value);
     ecma_fast_free_value (right_value);
 
-    if (ecma_is_value_error (result))
+    if (ECMA_IS_VALUE_ERROR (result))
     {
       ecma_value_t *vm_stack_p = stack_top_p;
 
@@ -2257,7 +2280,7 @@ error:
       return result;
     }
 
-    if (!ecma_is_value_error (result))
+    if (!ECMA_IS_VALUE_ERROR (result))
     {
       JERRY_ASSERT (frame_ctx_p->registers_p + register_end + frame_ctx_p->context_depth == stack_top_p);
 
@@ -2393,7 +2416,7 @@ vm_execute (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
 
   completion_value = vm_init_loop (frame_ctx_p);
 
-  if (likely (!ecma_is_value_error (completion_value)))
+  if (!ECMA_IS_VALUE_ERROR (completion_value))
   {
     while (true)
     {

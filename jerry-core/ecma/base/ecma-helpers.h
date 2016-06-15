@@ -129,7 +129,6 @@ extern bool ecma_is_value_float_number (ecma_value_t) __attr_pure___;
 extern bool ecma_is_value_number (ecma_value_t) __attr_pure___;
 extern bool ecma_is_value_string (ecma_value_t) __attr_pure___;
 extern bool ecma_is_value_object (ecma_value_t) __attr_pure___;
-extern bool ecma_is_value_error (ecma_value_t) __attr_pure___;
 
 extern void ecma_check_value_type_is_spec_defined (ecma_value_t);
 
@@ -179,6 +178,7 @@ extern lit_utf8_size_t __attr_return_value_should_be_checked___
 ecma_string_copy_to_utf8_buffer (const ecma_string_t *, lit_utf8_byte_t *, lit_utf8_size_t);
 extern void ecma_string_to_utf8_bytes (const ecma_string_t *, lit_utf8_byte_t *, lit_utf8_size_t);
 extern const lit_utf8_byte_t *ecma_string_raw_chars (const ecma_string_t *, lit_utf8_size_t *, bool *);
+extern void ecma_init_ecma_string_from_uint32 (ecma_string_t *, uint32_t);
 
 extern bool ecma_compare_ecma_strings_equal_hashes (const ecma_string_t *, const ecma_string_t *);
 extern bool ecma_compare_ecma_strings (const ecma_string_t *, const ecma_string_t *);
