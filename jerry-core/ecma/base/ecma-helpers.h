@@ -169,7 +169,7 @@ extern ecma_string_t *ecma_new_ecma_string_from_lit_cp (lit_cpointer_t);
 extern ecma_string_t *ecma_new_ecma_string_from_magic_string_id (lit_magic_string_id_t);
 extern ecma_string_t *ecma_new_ecma_string_from_magic_string_ex_id (lit_magic_string_ex_id_t);
 extern ecma_string_t *ecma_concat_ecma_strings (ecma_string_t *, ecma_string_t *);
-extern ecma_string_t *ecma_copy_or_ref_ecma_string (ecma_string_t *);
+extern void ecma_ref_ecma_string (ecma_string_t *);
 extern void ecma_deref_ecma_string (ecma_string_t *);
 extern ecma_number_t ecma_string_to_number (const ecma_string_t *);
 extern bool ecma_string_get_array_index (const ecma_string_t *, uint32_t *);
@@ -217,7 +217,7 @@ extern ecma_number_t ecma_number_add (ecma_number_t, ecma_number_t);
 extern ecma_number_t ecma_number_substract (ecma_number_t, ecma_number_t);
 extern ecma_number_t ecma_number_multiply (ecma_number_t, ecma_number_t);
 extern ecma_number_t ecma_number_divide (ecma_number_t, ecma_number_t);
-extern void ecma_number_to_decimal (ecma_number_t, uint64_t *, int32_t *, int32_t *);
+extern lit_utf8_size_t ecma_number_to_decimal (ecma_number_t, lit_utf8_byte_t *, int32_t *);
 
 /* ecma-helpers-values-collection.c */
 extern ecma_collection_header_t *ecma_new_values_collection (const ecma_value_t[], ecma_length_t, bool);
@@ -327,9 +327,7 @@ extern int32_t ecma_number_to_int32 (ecma_number_t);
 extern lit_utf8_size_t ecma_number_to_utf8_string (ecma_number_t, lit_utf8_byte_t *, lit_utf8_size_t);
 
 /* ecma-helpers-errol.c */
-#if CONFIG_ECMA_NUMBER_TYPE == CONFIG_ECMA_NUMBER_FLOAT64
-extern uint64_t ecma_errol0_dtoa (ecma_number_t, int32_t *, int32_t *);
-#endif /* CONFIG_ECMA_NUMBER_TYPE == CONFIG_ECMA_NUMBER_FLOAT64 */
+extern lit_utf8_size_t ecma_errol0_dtoa (double, lit_utf8_byte_t *, int32_t *);
 
 /**
  * @}
