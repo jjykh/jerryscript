@@ -832,6 +832,19 @@ ecma_string_raw_chars (const ecma_string_t *string_p, /**< ecma-string */
 } /* ecma_string_raw_chars */
 
 /**
+ * Checks whether ecma string is empty or not
+ *
+ * @return true  - if empty
+ *         false - otherwise
+ */
+bool
+ecma_string_is_empty (const ecma_string_t *str_p) /**< ecma-string */
+{
+  return (ECMA_STRING_GET_CONTAINER (str_p) == ECMA_STRING_CONTAINER_MAGIC_STRING
+          && str_p->u.magic_string_id == LIT_MAGIC_STRING__EMPTY);
+} /* ecma_string_is_empty */
+
+/**
  * Long path part of ecma-string to ecma-string comparison routine
  *
  * See also:
@@ -1314,6 +1327,7 @@ ecma_get_magic_string_ex (lit_magic_string_ex_id_t id) /**< external magic strin
   return ecma_new_ecma_string_from_magic_string_ex_id (id);
 } /* ecma_get_magic_string_ex */
 
+#ifndef JERRY_NDEBUG
 /**
  * Long path part of ecma_is_string_magic
  *
@@ -1338,6 +1352,7 @@ ecma_is_string_magic_longpath (const ecma_string_t *string_p, /**< ecma-string *
 
   return lit_is_utf8_string_magic (utf8_str_p, utf8_str_size, out_id_p);
 } /* ecma_is_string_magic_longpath */
+#endif /* !JERRY_NDEBUG */
 
 /**
  * Check if passed string equals to one of magic strings
@@ -1365,8 +1380,10 @@ ecma_is_string_magic (const ecma_string_t *string_p, /**< ecma-string */
      * should return ecma-string with ECMA_STRING_CONTAINER_MAGIC_STRING
      * container type if new ecma-string's content is equal to one of magic strings.
      */
+#ifndef JERRY_NDEBUG
     JERRY_ASSERT (ecma_string_get_length (string_p) > LIT_MAGIC_STRING_LENGTH_LIMIT
                   || !ecma_is_string_magic_longpath (string_p, out_id_p));
+#endif /* !JERRY_NDEBUG */
 
     return false;
   }
