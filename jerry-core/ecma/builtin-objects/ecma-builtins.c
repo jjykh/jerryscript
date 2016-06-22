@@ -643,52 +643,6 @@ ecma_builtin_list_lazy_property_names (ecma_object_t *object_p, /**< a built-in 
   }
 } /* ecma_builtin_list_lazy_property_names */
 
-/**
- * Construct a Function object for specified built-in routine
- *
- * See also: ECMA-262 v5, 15
- *
- * @return pointer to constructed Function object
- */
-ecma_object_t *
-ecma_builtin_make_function_object_for_routine (ecma_builtin_id_t builtin_id, /**< identifier of built-in object
-                                                                                  that initially contains property
-                                                                                  with the routine */
-                                               uint16_t routine_id, /**< builtin-wide identifier of the built-in
-                                                                         object's routine property */
-                                               uint8_t length_prop_value) /**< value of 'length' property
-                                                                               of function object to create */
-{
-  ecma_object_t *prototype_obj_p = ecma_builtin_get (ECMA_BUILTIN_ID_FUNCTION_PROTOTYPE);
-
-  ecma_object_t *func_obj_p = ecma_create_object (prototype_obj_p, true, ECMA_OBJECT_TYPE_BUILT_IN_FUNCTION);
-
-  ecma_deref_object (prototype_obj_p);
-
-  ecma_set_object_is_builtin (func_obj_p);
-
-  uint64_t packed_value = JRT_SET_BIT_FIELD_VALUE (uint64_t, 0ull,
-                                                   builtin_id,
-                                                   ECMA_BUILTIN_ROUTINE_ID_BUILT_IN_OBJECT_ID_POS,
-                                                   ECMA_BUILTIN_ROUTINE_ID_BUILT_IN_OBJECT_ID_WIDTH);
-  packed_value = JRT_SET_BIT_FIELD_VALUE (uint64_t, packed_value,
-                                          routine_id,
-                                          ECMA_BUILTIN_ROUTINE_ID_BUILT_IN_ROUTINE_ID_POS,
-                                          ECMA_BUILTIN_ROUTINE_ID_BUILT_IN_ROUTINE_ID_WIDTH);
-  packed_value = JRT_SET_BIT_FIELD_VALUE (uint64_t, packed_value,
-                                          length_prop_value,
-                                          ECMA_BUILTIN_ROUTINE_ID_LENGTH_VALUE_POS,
-                                          ECMA_BUILTIN_ROUTINE_ID_LENGTH_VALUE_WIDTH);
-
-  ecma_property_t *routine_desc_prop_p = ecma_create_internal_property (func_obj_p,
-                                                                        ECMA_INTERNAL_PROPERTY_BUILT_IN_ROUTINE_DESC);
-
-  JERRY_ASSERT (packed_value <= UINT32_MAX);
-  ecma_set_internal_property_value (routine_desc_prop_p, (uint32_t) packed_value);
-
-  return func_obj_p;
-} /* ecma_builtin_make_function_object_for_routine */
-
 #ifdef _MSC_VER
 #define ecma_builtin_object_prototype_dispatch_call(a,b) 0
 #define ecma_builtin_object_prototype_dispatch_construct(a,b) 0
