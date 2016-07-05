@@ -62,6 +62,8 @@ static jerry_flag_t jerry_flags;
  */
 static bool jerry_api_available;
 
+static const jerry_char_t *error_value_msg_p = (const jerry_char_t *) "argument cannot have an error flag";
+
 /** \addtogroup jerry_extension Jerry engine extension interface
  * @{
  */
@@ -275,8 +277,7 @@ jerry_create_undefined_value (void)
 jerry_value_t
 jerry_create_boolean_value (bool value) /**< bool value from which a jerry_value_t will be created */
 {
-  return (value ? ecma_make_simple_value (ECMA_SIMPLE_VALUE_TRUE)
-                : ecma_make_simple_value (ECMA_SIMPLE_VALUE_FALSE));
+  return ecma_make_boolean_value (value);
 } /* jerry_create_boolean_value */
 
 /**
@@ -542,13 +543,18 @@ jerry_create_array_object (jerry_size_t size) /**< size of array */
  * Set value of field in the specified array object
  *
  * @return true, if field value was set successfully
- *         throw exception, otherwise
+ *         false, otherwise
  */
 bool
 jerry_set_array_index_value (jerry_object_t *array_obj_p, /**< array object */
                              jerry_length_t index, /**< index to be written */
                              jerry_value_t value) /**< value to set */
 {
+  if (ECMA_IS_VALUE_ERROR (value))
+  {
+    return false;
+  }
+
   ecma_string_t *str_idx_p = ecma_new_ecma_string_from_uint32 ((uint32_t) index);
   ecma_value_t set_completion = ecma_op_object_put (array_obj_p, str_idx_p, value, false);
   JERRY_ASSERT (!ECMA_IS_VALUE_ERROR (set_completion));
@@ -857,6 +863,11 @@ jerry_add_object_field (jerry_object_t *object_p, /**< object to add field at */
 {
   jerry_assert_api_available ();
 
+  if (ECMA_IS_VALUE_ERROR (field_value))
+  {
+    return false;
+  }
+
   bool is_successful = false;
 
   if (ecma_get_object_extensible (object_p))
@@ -1053,6 +1064,11 @@ jerry_set_object_field_value_sz (jerry_object_t *object_p, /**< object */
 {
   jerry_assert_api_available ();
 
+  if (ECMA_IS_VALUE_ERROR (field_value))
+  {
+    return false;
+  }
+
   bool is_successful = true;
 
   ecma_string_t *field_name_str_p = ecma_new_ecma_string_from_utf8 ((lit_utf8_byte_t *) field_name_p,
@@ -1235,6 +1251,14 @@ jerry_call_function (jerry_object_t *function_object_p, /**< function object to 
 {
   jerry_assert_api_available ();
 
+  for (uint16_t i = 0; i < args_count; i++)
+  {
+    if (ECMA_IS_VALUE_ERROR (args_p[i]))
+    {
+      return jerry_create_object_value (jerry_create_error (JERRY_ERROR_TYPE, error_value_msg_p));
+    }
+  }
+
   if (jerry_is_function (function_object_p))
   {
     return jerry_invoke_function (false, function_object_p, this_arg_p, args_p, args_count);
@@ -1259,6 +1283,14 @@ jerry_construct_object (jerry_object_t *function_object_p, /**< function object 
                         uint16_t args_count) /**< number of the arguments */
 {
   jerry_assert_api_available ();
+
+  for (uint16_t i = 0; i < args_count; i++)
+  {
+    if (ECMA_IS_VALUE_ERROR (args_p[i]))
+    {
+      return jerry_create_object_value (jerry_create_error (JERRY_ERROR_TYPE, error_value_msg_p));
+    }
+  }
 
   if (jerry_is_constructor (function_object_p))
   {
@@ -2115,6 +2147,11 @@ jerry_value_to_boolean (const jerry_value_t value) /**< input value */
 {
   jerry_assert_api_available ();
 
+  if (ECMA_IS_VALUE_ERROR (value))
+  {
+    return false;
+  }
+
   return ecma_op_to_boolean (value);
 } /* jerry_value_to_boolean */
 
@@ -2131,6 +2168,11 @@ jerry_value_t
 jerry_value_to_number (const jerry_value_t value) /**< input value */
 {
   jerry_assert_api_available ();
+
+  if (ECMA_IS_VALUE_ERROR (value))
+  {
+    return jerry_create_object_value (jerry_create_error (JERRY_ERROR_TYPE, error_value_msg_p));
+  }
 
   return ecma_op_to_number (value);
 } /* jerry_value_to_number */
@@ -2149,6 +2191,11 @@ jerry_value_to_object (const jerry_value_t value) /**< input value */
 {
   jerry_assert_api_available ();
 
+  if (ECMA_IS_VALUE_ERROR (value))
+  {
+    return jerry_create_object_value (jerry_create_error (JERRY_ERROR_TYPE, error_value_msg_p));
+  }
+
   return ecma_op_to_object (value);
 } /* jerry_value_to_object */
 
@@ -2166,8 +2213,25 @@ jerry_value_to_string (const jerry_value_t value) /**< input value */
 {
   jerry_assert_api_available ();
 
+  if (ECMA_IS_VALUE_ERROR (value))
+  {
+    return jerry_create_object_value (jerry_create_error (JERRY_ERROR_TYPE, error_value_msg_p));
+  }
+
   return ecma_op_to_string (value);
 } /* jerry_value_to_string */
+
+/**
+ * Remove the error flag
+ *
+ * @return converted normal value, if value is error
+ *         unchanged value otherwise
+ */
+jerry_value_t
+jerry_value_remove_error_flag (const jerry_value_t value)
+{
+  return (jerry_value_t) (value & ~ECMA_VALUE_ERROR_FLAG);
+} /* jerry_value_remove_error_flag */
 
 /**
  * Get size of Jerry string
