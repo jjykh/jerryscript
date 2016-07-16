@@ -45,14 +45,16 @@ extern "C"
 /**
  * Jerry init flags
  */
-typedef enum
+enum
 {
   JERRY_INIT_EMPTY              = (0u),      /**< empty flag set */
   JERRY_INIT_ENABLE_LOG         = (1u << 0), /**< enable logging */
   JERRY_INIT_SHOW_OPCODES       = (1u << 1), /**< dump byte-code to stdout after parse */
   JERRY_INIT_MEM_STATS          = (1u << 2), /**< dump memory statistics */
   JERRY_INIT_MEM_STATS_SEPARATE = (1u << 3), /**< dump memory statistics and reset peak values after parse */
-} jerry_init_flag_t;
+};
+
+typedef int jerry_init_flag_t;
 
 /**
  * Jerry API Error object types
