@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "jerry-api.h"
-#include "jerry-port.h"
-#include "jerry-port-win32.h"
+#include "jerry-port-default.h"
 
 /**
  * Maximum command line arguments number

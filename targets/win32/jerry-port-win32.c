@@ -1,8 +1,7 @@
 #include <sys/timeb.h>
 #include <windows.h>
 
-#include "jerry-port.h"
-#include "jerry-port-win32.h"
+#include "jerry-port-default.h"
 
 /**
  * Actual log level
