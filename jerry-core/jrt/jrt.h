@@ -20,7 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "jerry.h"
+#include "jerry-api.h"
+#include "jerry-port.h"
 #include "jrt-types.h"
 
 #ifdef _MSC_VER
@@ -84,27 +85,15 @@ extern void __noreturn jerry_unimplemented (const char *, const char *, const ch
 #define JERRY_UNUSED(x) ((void) (x))
 
 #ifdef JERRY_ENABLE_LOG
-#define JERRY_LOG(lvl, ...) \
-  do \
-  { \
-    if (lvl <= jerry_debug_level && jerry_log_file) \
-    { \
-      jerry_port_logmsg (jerry_log_file, __VA_ARGS__); \
-    } \
-  } \
-  while (0)
-
-#define JERRY_DLOG(...) JERRY_LOG (1, __VA_ARGS__)
-#define JERRY_DDLOG(...) JERRY_LOG (2, __VA_ARGS__)
-#define JERRY_DDDLOG(...) JERRY_LOG (3, __VA_ARGS__)
+#define JERRY_DLOG(...) jerry_port_log (JERRY_LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define JERRY_DDLOG(...) jerry_port_log (JERRY_LOG_LEVEL_TRACE, __VA_ARGS__)
 #else /* !JERRY_ENABLE_LOG */
 #define JERRY_DLOG(...) do {} while (0)
 #define JERRY_DDLOG(...) JERRY_DLOG (__VA_ARGS__)
-#define JERRY_DDDLOG(...) JERRY_DLOG (__VA_ARGS__)
 #endif /* JERRY_ENABLE_LOG */
 
-#define JERRY_ERROR_MSG(...) jerry_port_errormsg (__VA_ARGS__)
-#define JERRY_WARNING_MSG(...) JERRY_ERROR_MSG (__VA_ARGS__)
+#define JERRY_ERROR_MSG(...) jerry_port_log (JERRY_LOG_LEVEL_ERROR, __VA_ARGS__)
+#define JERRY_WARNING_MSG(...) jerry_port_log (JERRY_LOG_LEVEL_WARNING, __VA_ARGS__)
 
 /**
  * Mark for unreachable points and unimplemented cases

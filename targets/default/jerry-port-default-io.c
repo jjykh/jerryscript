@@ -16,32 +16,59 @@
 #include <stdarg.h>
 
 #include "jerry-port.h"
+#include "jerry-port-default.h"
 
 /**
- * Provide log message to filestream implementation for the engine.
+ * Actual log level
  */
-int jerry_port_logmsg (FILE *stream, /**< stream pointer */
-                       const char *format, /**< format string */
-                       ...) /**< parameters */
-{
-  va_list args;
-  int count;
-  va_start (args, format);
-  count = vfprintf (stream, format, args);
-  va_end (args);
-  return count;
-} /* jerry_port_logmsg */
+static jerry_log_level_t jerry_log_level = JERRY_LOG_LEVEL_ERROR;
 
 /**
- * Provide error message to console implementation for the engine.
+ * Get the log level
+ *
+ * @return current log level
  */
-int jerry_port_errormsg (const char *format, /**< format string */
-                         ...) /**< parameters */
+jerry_log_level_t
+jerry_port_default_get_log_level (void)
+{
+  return jerry_log_level;
+} /* jerry_port_default_get_log_level */
+
+/**
+ * Set the log level
+ */
+void
+jerry_port_default_set_log_level (jerry_log_level_t level) /**< log level */
+{
+  jerry_log_level = level;
+} /* jerry_port_default_set_log_level */
+
+/**
+ * Provide console message implementation for the engine.
+ */
+void
+jerry_port_console (const char *format, /**< format string */
+                    ...) /**< parameters */
 {
   va_list args;
-  int count;
   va_start (args, format);
-  count = vfprintf (stderr, format, args);
+  vfprintf (stdout, format, args);
   va_end (args);
-  return count;
-} /* jerry_port_errormsg */
+} /* jerry_port_console */
+
+/**
+ * Provide log message implementation for the engine.
+ */
+void
+jerry_port_log (jerry_log_level_t level, /**< log level */
+                const char *format, /**< format string */
+                ...)  /**< parameters */
+{
+  if (level <= jerry_log_level)
+  {
+    va_list args;
+    va_start (args, format);
+    vfprintf (stderr, format, args);
+    va_end (args);
+  }
+} /* jerry_port_log */
