@@ -55,11 +55,6 @@ static vm_frame_ctx_t *vm_top_context_p = NULL;
 static bool is_direct_eval_form_call = false;
 
 /**
- * Program bytecode pointer
- */
-static ecma_compiled_code_t *__program = NULL;
-
-/**
  * Get the value of object[property].
  *
  * @return ecma value
@@ -193,17 +188,6 @@ vm_op_set_value (ecma_value_t object, /**< base object */
   return completion_value;
 } /* vm_op_set_value */
 
-/**
- * Initialize interpreter.
- */
-void
-vm_init (ecma_compiled_code_t *program_p) /**< pointer to byte-code data */
-{
-  JERRY_ASSERT (__program == NULL);
-
-  __program = program_p;
-} /* vm_init */
-
 #define CBC_OPCODE(arg1, arg2, arg3, arg4) arg4,
 
 /**
@@ -221,44 +205,27 @@ static const uint16_t vm_decode_table[] =
  * Run global code
  *
  * Note:
- *      returned error value should be freed with jerry_release_value
- *      just when the value becomes unnecessary.
+ *      returned value must be freed with ecma_free_value, when it is no longer needed.
  *
- * @return completion code
+ * @return ecma value
  */
-jerry_completion_code_t
-vm_run_global (ecma_value_t *error_value_p) /**< [out] error value */
+ecma_value_t
+vm_run_global (const ecma_compiled_code_t *bytecode_p) /**< pointer to bytecode to run */
 {
-  jerry_completion_code_t ret_code;
-
-  JERRY_ASSERT (__program != NULL);
-
   ecma_object_t *glob_obj_p = ecma_builtin_get (ECMA_BUILTIN_ID_GLOBAL);
   ecma_object_t *lex_env_p = ecma_get_global_environment ();
 
-  ecma_value_t ret_value = vm_run (__program,
+  ecma_value_t ret_value = vm_run (bytecode_p,
                                    ecma_make_object_value (glob_obj_p),
                                    lex_env_p,
                                    false,
                                    NULL,
                                    0);
 
-  if (ECMA_IS_VALUE_ERROR (ret_value))
-  {
-    *error_value_p = ret_value;
-    ret_code = JERRY_COMPLETION_CODE_UNHANDLED_EXCEPTION;
-  }
-  else
-  {
-    ecma_free_value (ret_value);
-    *error_value_p = ecma_make_simple_value (ECMA_SIMPLE_VALUE_UNDEFINED);
-    ret_code = JERRY_COMPLETION_CODE_OK;
-  }
-
   ecma_deref_object (glob_obj_p);
   ecma_deref_object (lex_env_p);
 
-  return ret_code;
+  return ret_value;
 } /* vm_run_global */
 
 /**
@@ -561,20 +528,6 @@ opfunc_construct (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
     } \
   } \
   while (0)
-
-/**
- * Cleanup interpreter
- */
-void
-vm_finalize (void)
-{
-  if (__program)
-  {
-    ecma_bytecode_deref (__program);
-  }
-
-  __program = NULL;
-} /* vm_finalize */
 
 /**
  * Run initializer byte codes.
@@ -1049,7 +1002,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         case VM_OC_APPEND_ARRAY:
         {
           ecma_object_t *array_obj_p;
-          ecma_string_t *length_str_p;
+          ecma_string_t length_str;
           ecma_property_t *length_prop_p;
           uint32_t length_num;
           uint32_t values_length = *byte_code_p++;
@@ -1057,15 +1010,13 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           stack_top_p -= values_length;
 
           array_obj_p = ecma_get_object_from_value (stack_top_p[-1]);
-          length_str_p = ecma_get_magic_string (LIT_MAGIC_STRING_LENGTH);
-          length_prop_p = ecma_get_named_property (array_obj_p, length_str_p);
+          ecma_init_ecma_length_string (&length_str);
+          length_prop_p = ecma_get_named_property (array_obj_p, &length_str);
 
           JERRY_ASSERT (length_prop_p != NULL);
 
           left_value = ecma_get_named_data_property_value (length_prop_p);
           length_num = ecma_get_uint32_from_value (left_value);
-
-          ecma_deref_ecma_string (length_str_p);
 
           for (uint32_t i = 0; i < values_length; i++)
           {

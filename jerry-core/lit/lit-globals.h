@@ -1,4 +1,5 @@
 /* Copyright 2015-2016 Samsung Electronics Co., Ltd.
+ * Copyright 2016 University of Szeged.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,5 +138,10 @@ typedef uint16_t lit_string_hash_t;
  *   binary size and improves performance.
  */
 #define LIT_STRING_HASH_LIMIT 0x10000u
+
+/**
+ * Hash of the frequently used "length" string.
+ */
+#define LIT_STRING_LENGTH_HASH 0x3615u
 
 #endif /* !LIT_GLOBALS_H */

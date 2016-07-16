@@ -1,4 +1,5 @@
 /* Copyright 2014-2016 Samsung Electronics Co., Ltd.
+ * Copyright 2016 University of Szeged.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,29 +74,19 @@ ecma_op_object_get (ecma_object_t *obj_p, /**< the object */
 
   const ecma_object_type_t type = ecma_get_object_type (obj_p);
 
-  switch (type)
+  if (unlikely (type == ECMA_OBJECT_TYPE_ARGUMENTS))
   {
-    case ECMA_OBJECT_TYPE_GENERAL:
-    case ECMA_OBJECT_TYPE_FUNCTION:
-    case ECMA_OBJECT_TYPE_EXTERNAL_FUNCTION:
-    case ECMA_OBJECT_TYPE_ARRAY:
-    case ECMA_OBJECT_TYPE_STRING:
-    case ECMA_OBJECT_TYPE_BOUND_FUNCTION:
-    {
-      return ecma_op_general_object_get (obj_p, property_name_p);
-    }
-
-    case ECMA_OBJECT_TYPE_ARGUMENTS:
-    {
-      return ecma_op_arguments_object_get (obj_p, property_name_p);
-    }
-    default:
-    {
-      JERRY_ASSERT (false);
-
-      return ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
-    }
+    return ecma_op_arguments_object_get (obj_p, property_name_p);
   }
+
+  JERRY_ASSERT (type == ECMA_OBJECT_TYPE_GENERAL
+                || type == ECMA_OBJECT_TYPE_FUNCTION
+                || type == ECMA_OBJECT_TYPE_EXTERNAL_FUNCTION
+                || type == ECMA_OBJECT_TYPE_ARRAY
+                || type == ECMA_OBJECT_TYPE_STRING
+                || type == ECMA_OBJECT_TYPE_BOUND_FUNCTION);
+
+  return ecma_op_general_object_get (obj_p, property_name_p);
 } /* ecma_op_object_get */
 
 /**
@@ -277,8 +268,11 @@ ecma_op_object_put (ecma_object_t *obj_p, /**< the object */
  * See also:
  *          ECMA-262 v5, 8.6.2; ECMA-262 v5, Table 8
  *
- * @return ecma value
- *         Returned value must be freed with ecma_free_value
+ * Note:
+ *      returned value must be freed with ecma_free_value
+ *
+ * @return true, if deleted successfully
+ *         false or type error otherwise (based in 'is_throw')
  */
 ecma_value_t
 ecma_op_object_delete (ecma_object_t *obj_p, /**< the object */
@@ -315,7 +309,7 @@ ecma_op_object_delete (ecma_object_t *obj_p, /**< the object */
     {
       JERRY_ASSERT (false);
 
-      return ecma_make_simple_value (ECMA_SIMPLE_VALUE_EMPTY);
+      return ecma_make_simple_value (ECMA_SIMPLE_VALUE_FALSE);
     }
   }
 } /* ecma_op_object_delete */
