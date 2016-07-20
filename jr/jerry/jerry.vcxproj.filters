@@ -23,16 +23,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jerry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\jerry-core\jerry-all-in-one.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\targets\win32\jerry-port-win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jerry.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

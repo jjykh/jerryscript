@@ -1,5 +1,26 @@
-#include "stdafx.h"
+/* Copyright 2014-2016 Samsung Electronics Co., Ltd.
+ * Copyright 2016 University of Szeged
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "jerry-api.h"
+#include "jerry-port.h"
 #include "jerry-port-default.h"
 
 /**
@@ -192,10 +213,12 @@ main (int argc,
     else if (!strcmp ("--mem-stats", argv[i]))
     {
       flags |= JERRY_INIT_MEM_STATS;
+      jerry_port_default_set_log_level (JERRY_LOG_LEVEL_DEBUG);
     }
     else if (!strcmp ("--mem-stats-separate", argv[i]))
     {
       flags |= JERRY_INIT_MEM_STATS_SEPARATE;
+      jerry_port_default_set_log_level (JERRY_LOG_LEVEL_DEBUG);
     }
     else if (!strcmp ("--parse-only", argv[i]))
     {
@@ -204,6 +227,7 @@ main (int argc,
     else if (!strcmp ("--show-opcodes", argv[i]))
     {
       flags |= JERRY_INIT_SHOW_OPCODES;
+      jerry_port_default_set_log_level (JERRY_LOG_LEVEL_DEBUG);
     }
     else if (!strcmp ("--save-snapshot-for-global", argv[i])
              || !strcmp ("--save-snapshot-for-eval", argv[i]))

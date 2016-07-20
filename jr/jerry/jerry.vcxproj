@@ -87,7 +87,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\targets\win32;..\..\targets\default;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -100,7 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\targets\win32;..\..\targets\default;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,7 +115,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>JERRY_NDEBUG;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\targets\win32;..\..\targets\default;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -133,7 +133,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>JERRY_NDEBUG;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\targets\win32;..\..\targets\default;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -160,12 +160,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="jerry.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    <ClCompile Include="jerry.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

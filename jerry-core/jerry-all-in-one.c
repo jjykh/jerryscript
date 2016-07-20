@@ -73,6 +73,7 @@
 #include "./jmem/jmem-allocator.c"
 #include "./jmem/jmem-heap.c"
 #include "./jmem/jmem-poolman.c"
+#include "./jcontext/jcontext.c"
 #include "./jrt/jrt.c"
 #include "./jrt/jrt-fatals.c"
 #include "./lit/lit-char-helpers.c"
