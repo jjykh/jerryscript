@@ -88,6 +88,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -101,6 +103,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,6 +121,8 @@
       <PreprocessorDefinitions>JERRY_NDEBUG;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +141,8 @@
       <PreprocessorDefinitions>JERRY_NDEBUG;_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\targets\win32;..\..\targets\default;..\..\jerry-core;..\..\jerry-core\ecma\base;..\..\jerry-core\ecma\builtin-objects;..\..\jerry-core\ecma\operations;..\..\jerry-core\jmem;..\..\jerry-core\jcontext;..\..\jerry-core\jrt;..\..\jerry-core\lit;..\..\jerry-core\parser\js;..\..\jerry-core\parser\regexp;..\..\jerry-core\vm</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

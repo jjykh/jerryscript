@@ -119,6 +119,8 @@ print_help (char *name)
           name);
 } /* print_help */
 
+bool is_done = false;
+
 static jerry_value_t
 load_handler(const jerry_value_t func_obj_val, /**< function object */
 	const jerry_value_t this_p, /**< this arg */
@@ -150,6 +152,16 @@ load_handler(const jerry_value_t func_obj_val, /**< function object */
 	exit(JERRY_STANDALONE_EXIT_CODE_FAIL);
 }
 
+static jerry_value_t
+quit_handler(const jerry_value_t func_obj_val, /**< function object */
+	const jerry_value_t this_p, /**< this arg */
+	const jerry_value_t args_p[], /**< function arguments */
+	const jerry_length_t args_cnt) /**< number of function arguments */
+{
+	is_done = true;
+	return jerry_create_null();
+}
+
 static void init_funcs(void) {
 	jerry_value_t global_obj_val = jerry_get_global_object();
 	jerry_value_t load_val = jerry_create_external_function(load_handler);
@@ -157,7 +169,10 @@ static void init_funcs(void) {
 	jerry_set_property(global_obj_val, load_func_name_val, load_val);
 	jerry_release_value(load_val);
 
-
+	jerry_value_t quit_val = jerry_create_external_function(quit_handler);
+	jerry_value_t quit_func_name_val = jerry_create_string((jerry_char_t *) "quit");
+	jerry_set_property(global_obj_val, quit_func_name_val, quit_val);
+	jerry_release_value(quit_val);
 
 	jerry_release_value(global_obj_val);
 }
@@ -421,7 +436,7 @@ main (int argc,
   if (is_repl_mode)
   {
     const char *prompt = "jerry> ";
-    bool is_done = false;
+    is_done = false;
 
     jerry_value_t global_obj_val = jerry_get_global_object ();
     jerry_value_t print_func_name_val = jerry_create_string ((jerry_char_t *) "print");
