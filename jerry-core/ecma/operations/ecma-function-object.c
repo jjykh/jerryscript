@@ -248,7 +248,7 @@ ecma_op_function_list_lazy_property_names (bool separate_enumerable, /**< true -
                                                                                              *   collection */
 {
   ecma_collection_header_t *for_enumerable_p = main_collection_p;
-  (void) for_enumerable_p;
+  JERRY_UNUSED (for_enumerable_p);
 
   ecma_collection_header_t *for_non_enumerable_p = separate_enumerable ? non_enum_collection_p : main_collection_p;
 
@@ -612,7 +612,6 @@ ecma_op_function_call (ecma_object_t *func_obj_p, /**< Function object */
       else
       {
         local_env_p = ecma_create_decl_lex_env (scope_p);
-#ifndef CONFIG_ECMA_COMPACT_PROFILE
         if (bytecode_data_p->status_flags & CBC_CODE_FLAGS_ARGUMENTS_NEEDED)
         {
           ecma_op_create_arguments_object (func_obj_p,
@@ -621,7 +620,6 @@ ecma_op_function_call (ecma_object_t *func_obj_p, /**< Function object */
                                            arguments_list_len,
                                            bytecode_data_p);
         }
-#endif /* !CONFIG_ECMA_COMPACT_PROFILE */
       }
 
       ret_value = vm_run (bytecode_data_p,

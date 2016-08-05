@@ -1038,8 +1038,8 @@ ecma_assert_object_contains_the_property (const ecma_object_t *object_p, /**< ec
   JERRY_UNREACHABLE ();
 
 #else /* JERRY_NDEBUG */
-  (void) object_p;
-  (void) prop_p;
+  JERRY_UNUSED (object_p);
+  JERRY_UNUSED (prop_p);
 #endif /* !JERRY_NDEBUG */
 } /* ecma_assert_object_contains_the_property */
 
@@ -1479,11 +1479,11 @@ ecma_bytecode_deref (ecma_compiled_code_t *bytecode_p) /**< byte code pointer */
   }
   else
   {
-#ifndef CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN
+#ifndef CONFIG_DISABLE_REGEXP_BUILTIN
     re_compiled_code_t *re_bytecode_p = (re_compiled_code_t *) bytecode_p;
 
     ecma_deref_ecma_string (ECMA_GET_NON_NULL_POINTER (ecma_string_t, re_bytecode_p->pattern_cp));
-#endif /* !CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN */
+#endif /* !CONFIG_DISABLE_REGEXP_BUILTIN */
   }
 
   jmem_heap_free_block (bytecode_p,
