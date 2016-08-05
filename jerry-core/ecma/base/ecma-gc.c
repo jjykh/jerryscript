@@ -161,19 +161,6 @@ ecma_deref_object (ecma_object_t *object_p) /**< object */
 } /* ecma_deref_object */
 
 /**
- * Initialize garbage collector
- */
-void
-ecma_gc_init (void)
-{
-  JERRY_CONTEXT (ecma_gc_objects_lists) [ECMA_GC_COLOR_WHITE_GRAY] = NULL;
-  JERRY_CONTEXT (ecma_gc_objects_lists) [ECMA_GC_COLOR_BLACK] = NULL;
-  JERRY_CONTEXT (ecma_gc_visited_flip_flag) = false;
-  JERRY_CONTEXT (ecma_gc_objects_number) = 0;
-  JERRY_CONTEXT (ecma_gc_new_objects) = 0;
-} /* ecma_gc_init */
-
-/**
  * Mark referenced object from property
  */
 static void
@@ -562,12 +549,15 @@ ecma_gc_run (jmem_free_unused_memory_severity_t severity) /**< gc severity */
     {
       JERRY_ASSERT (ecma_gc_is_object_visited (obj_iter_p));
 
-      ecma_property_header_t *prop_iter_p = ecma_get_property_list (obj_iter_p);
-
-      if (prop_iter_p != NULL
-          && ECMA_PROPERTY_GET_TYPE (prop_iter_p->types + 0) == ECMA_PROPERTY_TYPE_HASHMAP)
+      if (!ecma_is_lexical_environment (obj_iter_p)
+          || ecma_get_lex_env_type (obj_iter_p) == ECMA_LEXICAL_ENVIRONMENT_DECLARATIVE)
       {
-        ecma_property_hashmap_free (obj_iter_p);
+        ecma_property_header_t *prop_iter_p = ecma_get_property_list (obj_iter_p);
+        if (prop_iter_p != NULL
+            && ECMA_PROPERTY_GET_TYPE (prop_iter_p->types + 0) == ECMA_PROPERTY_TYPE_HASHMAP)
+        {
+          ecma_property_hashmap_free (obj_iter_p);
+        }
       }
 
       obj_iter_p = ecma_gc_get_object_next (obj_iter_p);
@@ -581,10 +571,10 @@ ecma_gc_run (jmem_free_unused_memory_severity_t severity) /**< gc severity */
 
   JERRY_CONTEXT (ecma_gc_visited_flip_flag) = !JERRY_CONTEXT (ecma_gc_visited_flip_flag);
 
-#ifndef CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN
+#ifndef CONFIG_DISABLE_REGEXP_BUILTIN
   /* Free RegExp bytecodes stored in cache */
   re_cache_gc_run ();
-#endif /* !CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN */
+#endif /* !CONFIG_DISABLE_REGEXP_BUILTIN */
 } /* ecma_gc_run */
 
 /**

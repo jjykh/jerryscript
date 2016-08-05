@@ -31,6 +31,7 @@
 #include "ecma-objects-general.h"
 #include "ecma-regexp-object.h"
 #include "ecma-try-catch-macro.h"
+#include "jcontext.h"
 #include "opcodes.h"
 #include "vm.h"
 #include "vm-stack.h"
@@ -47,16 +48,6 @@
  * \addtogroup vm_executor Executor
  * @{
  */
-
-/**
- * Top (current) interpreter context
- */
-static vm_frame_ctx_t *vm_top_context_p = NULL;
-
-/**
- * Direct call from eval;
- */
-static bool is_direct_eval_form_call = false;
 
 /**
  * Get the value of object[property].
@@ -197,7 +188,7 @@ vm_op_set_value (ecma_value_t object, /**< base object */
 /**
  * Decode table for both opcodes and extended opcodes.
  */
-static const uint16_t vm_decode_table[] =
+static const uint16_t vm_decode_table[] JERRY_CONST_DATA =
 {
   CBC_OPCODE_LIST
   CBC_EXT_OPCODE_LIST
@@ -244,8 +235,8 @@ vm_run_eval (ecma_compiled_code_t *bytecode_data_p, /**< byte-code data */
   /* ECMA-262 v5, 10.4.2 */
   if (is_direct)
   {
-    this_binding = ecma_copy_value (vm_top_context_p->this_binding);
-    lex_env_p = vm_top_context_p->lex_env_p;
+    this_binding = ecma_copy_value (JERRY_CONTEXT (vm_top_context_p)->this_binding);
+    lex_env_p = JERRY_CONTEXT (vm_top_context_p)->lex_env_p;
   }
   else
   {
@@ -302,7 +293,7 @@ vm_construct_literal_object (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
   }
   else
   {
-#ifndef CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN
+#ifndef CONFIG_DISABLE_REGEXP_BUILTIN
     ecma_value_t ret_value;
     ret_value = ecma_op_create_regexp_object_from_bytecode ((re_compiled_code_t *) bytecode_p);
 
@@ -313,9 +304,9 @@ vm_construct_literal_object (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
     }
 
     return ret_value;
-#else /* CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN */
-    JERRY_UNIMPLEMENTED ("Regular Expressions are not supported in compact profile!");
-#endif /* !CONFIG_ECMA_COMPACT_PROFILE_DISABLE_REGEXP_BUILTIN */
+#else /* CONFIG_DISABLE_REGEXP_BUILTIN */
+    JERRY_UNREACHABLE (); /* Regular Expressions are not supported in the selected profile! */
+#endif /* !CONFIG_DISABLE_REGEXP_BUILTIN */
   }
 } /* vm_construct_literal_object */
 
@@ -398,7 +389,7 @@ opfunc_call (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                               arguments_list_len);
   }
 
-  is_direct_eval_form_call = false;
+  JERRY_CONTEXT (is_direct_eval_form_call) = false;
 
   /* Free registers. */
   for (uint32_t i = 0; i < arguments_list_len; i++)
@@ -1350,7 +1341,7 @@ vm_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
         }
         case VM_OC_EVAL:
         {
-          is_direct_eval_form_call = true;
+          JERRY_CONTEXT (is_direct_eval_form_call) = true;
           JERRY_ASSERT (*byte_code_p >= CBC_CALL && *byte_code_p <= CBC_CALL2_PROP_BLOCK);
           continue;
         }
@@ -2578,10 +2569,10 @@ vm_execute (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
     }
   }
 
-  is_direct_eval_form_call = false;
+  JERRY_CONTEXT (is_direct_eval_form_call) = false;
 
-  prev_context_p = vm_top_context_p;
-  vm_top_context_p = frame_ctx_p;
+  prev_context_p = JERRY_CONTEXT (vm_top_context_p);
+  JERRY_CONTEXT (vm_top_context_p) = frame_ctx_p;
 
   completion_value = vm_init_loop (frame_ctx_p);
 
@@ -2614,7 +2605,7 @@ vm_execute (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
     ecma_fast_free_value (frame_ctx_p->registers_p[i]);
   }
 
-  vm_top_context_p = prev_context_p;
+  JERRY_CONTEXT (vm_top_context_p) = prev_context_p;
   return completion_value;
 } /* vm_execute */
 
@@ -2728,9 +2719,9 @@ vm_run (const ecma_compiled_code_t *bytecode_header_p, /**< byte-code data heade
 bool
 vm_is_strict_mode (void)
 {
-  JERRY_ASSERT (vm_top_context_p != NULL);
+  JERRY_ASSERT (JERRY_CONTEXT (vm_top_context_p) != NULL);
 
-  return vm_top_context_p->bytecode_header_p->status_flags & CBC_CODE_FLAGS_STRICT_MODE;
+  return JERRY_CONTEXT (vm_top_context_p)->bytecode_header_p->status_flags & CBC_CODE_FLAGS_STRICT_MODE;
 } /* vm_is_strict_mode */
 
 /**
@@ -2745,10 +2736,10 @@ vm_is_strict_mode (void)
  *                without 'this' argument,
  *         false - otherwise.
  */
-bool
+inline bool __attr_always_inline___
 vm_is_direct_eval_form_call (void)
 {
-  return is_direct_eval_form_call;
+  return JERRY_CONTEXT (is_direct_eval_form_call);
 } /* vm_is_direct_eval_form_call */
 
 /**
