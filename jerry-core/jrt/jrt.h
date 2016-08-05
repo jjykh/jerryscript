@@ -27,6 +27,7 @@
 #ifdef _MSC_VER
 #define __attribute__(x)	/**/
 #define __builtin_expect(e, f)	e
+#define __builtin_unreachable() __assume(0)
 #endif
 
 /*
@@ -102,7 +103,7 @@ extern void __noreturn jerry_unreachable (const char *, const char *, const uint
   } while (0)
 #else /* JERRY_NDEBUG */
 #define JERRY_ASSERT(x)     do {} while (0)
-#define JERRY_UNREACHABLE() do {} while (0)
+#define JERRY_UNREACHABLE() __builtin_unreachable()
 #endif /* !JERRY_NDEBUG */
 
 /**
