@@ -73,15 +73,6 @@
 #define PARSER_PLUS_EQUAL_LC(base, value) (base) = (parser_line_counter_t) ((base) + (value))
 
 /**
- * Parser boolean type.
- */
-typedef enum
-{
-  PARSER_FALSE = 0,                           /**< false constant */
-  PARSER_TRUE = 1                             /**< true constant */
-} parser_boolean_t;
-
-/**
  * Argument for a compact-byte code.
  */
 typedef struct
@@ -223,9 +214,9 @@ typedef struct parser_saved_context_t
   uint32_t byte_code_size;                    /**< byte code size for branches */
   parser_mem_data_t literal_pool_data;        /**< literal list */
 
-#ifdef PARSER_DEBUG
+#ifndef JERRY_NDEBUG
   uint16_t context_stack_depth;               /**< current context stack depth */
-#endif /* PARSER_DEBUG */
+#endif /* !JERRY_NDEBUG */
 } parser_saved_context_t;
 
 /**
@@ -271,10 +262,10 @@ typedef struct
   parser_mem_page_t *free_page_p;             /**< space for fast allocation */
   uint8_t stack_top_uint8;                    /**< top byte stored on the stack */
 
-#ifdef PARSER_DEBUG
+#ifndef JERRY_NDEBUG
   /* Variables for debugging / logging. */
   uint16_t context_stack_depth;               /**< current context stack depth */
-#endif /* PARSER_DEBUG */
+#endif /* !JERRY_NDEBUG */
 
 #ifdef PARSER_DUMP_BYTE_CODE
   int is_show_opcodes;                        /**< show opcodes */
@@ -327,7 +318,7 @@ void parser_emit_cbc (parser_context_t *, uint16_t);
 void parser_emit_cbc_literal (parser_context_t *, uint16_t, uint16_t);
 void parser_emit_cbc_literal_from_token (parser_context_t *, uint16_t);
 void parser_emit_cbc_call (parser_context_t *, uint16_t, size_t);
-void parser_emit_cbc_push_number (parser_context_t *, int);
+void parser_emit_cbc_push_number (parser_context_t *, bool);
 void parser_emit_cbc_forward_branch (parser_context_t *, uint16_t, parser_branch_t *);
 parser_branch_node_t *parser_emit_cbc_forward_branch_item (parser_context_t *, uint16_t, parser_branch_node_t *);
 void parser_emit_cbc_backward_branch (parser_context_t *, uint16_t, uint32_t);
@@ -351,14 +342,14 @@ void parser_set_continues_to_current_position (parser_context_t *, parser_branch
 
 void lexer_next_token (parser_context_t *);
 void lexer_expect_identifier (parser_context_t *, uint8_t);
-void lexer_scan_identifier (parser_context_t *, int);
+void lexer_scan_identifier (parser_context_t *, bool);
 ecma_char_t lexer_hex_to_character (parser_context_t *context_p, const uint8_t *source_p, int length);
-void lexer_expect_object_literal_id (parser_context_t *, int);
+void lexer_expect_object_literal_id (parser_context_t *, bool);
 void lexer_construct_literal_object (parser_context_t *, lexer_lit_location_t *, uint8_t);
-int lexer_construct_number_object (parser_context_t *, int, int);
+bool lexer_construct_number_object (parser_context_t *, bool, bool);
 void lexer_construct_function_object (parser_context_t *, uint32_t);
-void lexer_construct_regexp_object (parser_context_t *, int);
-int lexer_compare_identifier_to_current (parser_context_t *, const lexer_lit_location_t *);
+void lexer_construct_regexp_object (parser_context_t *, bool);
+bool lexer_compare_identifier_to_current (parser_context_t *, const lexer_lit_location_t *);
 
 /* Parser functions. */
 
