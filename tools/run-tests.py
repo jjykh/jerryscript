@@ -80,11 +80,13 @@ jerry_test_suite_options.append(Options('jerry_test_suite-minimal-debug-snapshot
 # Test options for buildoption-test
 jerry_buildoptions = [
                       Options('buildoption_test-lto', ['--lto=on']),
-                      Options('buildoption_test-log', ['--log=on']),
                       Options('buildoption_test-error_messages', ['--error-messages=on']),
                       Options('buildoption_test-all_in_one', ['--all-in-one=on']),
                       Options('buildoption_test-valgrind', ['--valgrind=on']),
                       Options('buildoption_test-valgrind_freya', ['--valgrind-freya=on']),
+                      Options('buildoption_test-mem_stats', ['--mem-stats=on']),
+                      Options('buildoption_test-show_opcodes', ['--show-opcodes=on']),
+                      Options('buildoption_test-show_regexp_opcodes', ['--show-regexp-opcodes=on']),
                       Options('buildoption_test-jerry_libc', ['--jerry-libc=on', '--compiler-default-libc=off']),
                       Options('buildoption_test-compiler_default_libc', ['--compiler-default-libc=on', '--jerry-libc=off']),
                      ]
@@ -172,22 +174,22 @@ def main():
     if script_args.all or script_args.check_signed_off:
         ret = run_check(SIGNED_OFF_SCRIPT)
 
-    if not ret and script_args.all or script_args.check_cppcheck:
+    if not ret and (script_args.all or script_args.check_cppcheck):
         ret = run_check(CPPCHECK_SCRIPT)
 
-    if not ret and script_args.all or script_args.check_vera:
+    if not ret and (script_args.all or script_args.check_vera):
         ret = run_check(VERA_SCRIPT)
 
-    if not ret and script_args.all or script_args.jerry_tests:
+    if not ret and (script_args.all or script_args.jerry_tests):
         ret = run_jerry_tests()
 
-    if not ret and script_args.all or script_args.jerry_test_suite:
+    if not ret and (script_args.all or script_args.jerry_test_suite):
         ret = run_jerry_test_suite()
 
-    if not ret and script_args.all or script_args.unittests:
+    if not ret and (script_args.all or script_args.unittests):
         ret = run_unittests()
 
-    if not ret and script_args.all or script_args.buildoption_test:
+    if not ret and (script_args.all or script_args.buildoption_test):
         ret = run_buildoption_test()
 
     sys.exit(ret)
