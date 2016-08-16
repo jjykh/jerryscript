@@ -129,6 +129,8 @@ extern void jerry_ref_unused_variables (void *, ...);
 
 #define JERRY_ERROR_MSG(...) jerry_port_log (JERRY_LOG_LEVEL_ERROR, __VA_ARGS__)
 #define JERRY_WARNING_MSG(...) jerry_port_log (JERRY_LOG_LEVEL_WARNING, __VA_ARGS__)
+#define JERRY_DEBUG_MSG(...) jerry_port_log (JERRY_LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define JERRY_TRACE_MSG(...) jerry_port_log (JERRY_LOG_LEVEL_TRACE, __VA_ARGS__)
 
 /**
  * Size of struct member

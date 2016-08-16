@@ -80,11 +80,13 @@ jerry_test_suite_options.append(Options('jerry_test_suite-minimal-debug-snapshot
 # Test options for buildoption-test
 jerry_buildoptions = [
                       Options('buildoption_test-lto', ['--lto=on']),
-                      Options('buildoption_test-log', ['--log=on']),
                       Options('buildoption_test-error_messages', ['--error-messages=on']),
                       Options('buildoption_test-all_in_one', ['--all-in-one=on']),
                       Options('buildoption_test-valgrind', ['--valgrind=on']),
                       Options('buildoption_test-valgrind_freya', ['--valgrind-freya=on']),
+                      Options('buildoption_test-mem_stats', ['--mem-stats=on']),
+                      Options('buildoption_test-show_opcodes', ['--show-opcodes=on']),
+                      Options('buildoption_test-show_regexp_opcodes', ['--show-regexp-opcodes=on']),
                       Options('buildoption_test-jerry_libc', ['--jerry-libc=on', '--compiler-default-libc=off']),
                       Options('buildoption_test-compiler_default_libc', ['--compiler-default-libc=on', '--jerry-libc=off']),
                      ]
@@ -112,51 +114,51 @@ def create_binary(buildoptions):
     return 0
 
 def run_jerry_tests():
+    ret_build = ret_test = 0
     for job in jerry_tests_options:
-        ret = create_binary(job.build_args)
-
-        if not ret:
-            test_cmd = [TEST_RUNNER_SCRIPT, get_binary_path(job.out_dir), JERRY_TESTS_DIR]
-            if job.test_args:
-                test_cmd.extend(job.test_args)
-
-            ret = run_check(test_cmd)
-        else:
+        ret_build = create_binary(job.build_args)
+        if ret_build:
             break
 
-    return ret
+        test_cmd = [TEST_RUNNER_SCRIPT, get_binary_path(job.out_dir), JERRY_TESTS_DIR]
+        if job.test_args:
+            test_cmd.extend(job.test_args)
+
+        ret_test |= run_check(test_cmd)
+
+    return ret_build | ret_test
 
 def run_jerry_test_suite():
+    ret_build = ret_test = 0
     for job in jerry_test_suite_options:
-        ret = create_binary(job.build_args)
-
-        if not ret:
-            test_cmd = [TEST_RUNNER_SCRIPT, get_binary_path(job.out_dir)]
-
-            if '--profile=minimal' in job.build_args:
-                test_cmd.append(JERRY_TEST_SUITE_MINIMAL_LIST)
-            else:
-                test_cmd.append(JERRY_TEST_SUITE_DIR)
-
-            if job.test_args:
-                test_cmd.extend(job.test_args)
-
-            ret = run_check(test_cmd)
-        else:
+        ret_build = create_binary(job.build_args)
+        if ret_build:
             break
 
-    return ret
+        test_cmd = [TEST_RUNNER_SCRIPT, get_binary_path(job.out_dir)]
+
+        if '--profile=minimal' in job.build_args:
+            test_cmd.append(JERRY_TEST_SUITE_MINIMAL_LIST)
+        else:
+            test_cmd.append(JERRY_TEST_SUITE_DIR)
+
+        if job.test_args:
+            test_cmd.extend(job.test_args)
+
+        ret_test |= run_check(test_cmd)
+
+    return ret_build | ret_test
 
 def run_unittests():
+    ret_build = ret_test = 0
     for job in jerry_unittests_options:
-        ret = create_binary(job.build_args)
-
-        if not ret:
-            ret = run_check([UNITTEST_RUNNER_SCRIPT, get_bin_dir_path(job.out_dir)])
-        else:
+        ret_build = create_binary(job.build_args)
+        if ret_build:
             break
 
-    return ret
+        ret_test |= run_check([UNITTEST_RUNNER_SCRIPT, get_bin_dir_path(job.out_dir)])
+
+    return ret_build | ret_test
 
 def run_buildoption_test():
     for job in jerry_buildoptions:
@@ -172,22 +174,22 @@ def main():
     if script_args.all or script_args.check_signed_off:
         ret = run_check(SIGNED_OFF_SCRIPT)
 
-    if not ret and script_args.all or script_args.check_cppcheck:
+    if not ret and (script_args.all or script_args.check_cppcheck):
         ret = run_check(CPPCHECK_SCRIPT)
 
-    if not ret and script_args.all or script_args.check_vera:
+    if not ret and (script_args.all or script_args.check_vera):
         ret = run_check(VERA_SCRIPT)
 
-    if not ret and script_args.all or script_args.jerry_tests:
+    if not ret and (script_args.all or script_args.jerry_tests):
         ret = run_jerry_tests()
 
-    if not ret and script_args.all or script_args.jerry_test_suite:
+    if not ret and (script_args.all or script_args.jerry_test_suite):
         ret = run_jerry_test_suite()
 
-    if not ret and script_args.all or script_args.unittests:
+    if not ret and (script_args.all or script_args.unittests):
         ret = run_unittests()
 
-    if not ret and script_args.all or script_args.buildoption_test:
+    if not ret and (script_args.all or script_args.buildoption_test):
         ret = run_buildoption_test()
 
     sys.exit(ret)
