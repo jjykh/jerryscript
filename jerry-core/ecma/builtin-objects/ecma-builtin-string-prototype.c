@@ -76,10 +76,10 @@ ecma_builtin_string_prototype_object_to_string (ecma_value_t this_arg) /**< this
 
     if (ecma_object_get_class_name (obj_p) == LIT_MAGIC_STRING_STRING_UL)
     {
-      ecma_property_t *prim_value_prop_p = ecma_get_internal_property (obj_p,
-                                                                       ECMA_INTERNAL_PROPERTY_ECMA_VALUE);
+      ecma_value_t *prim_value_p = ecma_get_internal_property (obj_p,
+                                                               ECMA_INTERNAL_PROPERTY_ECMA_VALUE);
 
-      return ecma_copy_value (ecma_get_internal_property_value (prim_value_prop_p));
+      return ecma_copy_value (*prim_value_p);
     }
   }
 
@@ -1564,7 +1564,14 @@ ecma_builtin_helper_split_match (ecma_value_t input_string, /**< first argument 
         ecma_object_t *match_array_p = ecma_get_object_from_value (match_array);
         ecma_string_t *zero_str_p = ecma_new_ecma_string_from_number (ECMA_NUMBER_ZERO);
 
-        ecma_op_object_put (match_array_p, zero_str_p, ecma_make_string_value (separator_str_p), true);
+        ecma_value_t put_comp = ecma_builtin_helper_def_prop (match_array_p,
+                                                              zero_str_p,
+                                                              ecma_make_string_value (separator_str_p),
+                                                              true,
+                                                              true,
+                                                              true,
+                                                              true);
+        JERRY_ASSERT (ecma_is_value_true (put_comp));
 
         ecma_string_t *magic_index_str_p = ecma_get_magic_string (LIT_MAGIC_STRING_INDEX);
         ecma_property_t *index_prop_p = ecma_create_named_data_property (match_array_p,
