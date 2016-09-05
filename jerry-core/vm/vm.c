@@ -149,7 +149,7 @@ vm_op_set_value (ecma_value_t object, /**< base object */
     ecma_value_t to_string = ecma_op_to_string (property);
     ecma_fast_free_value (property);
 
-    if (ECMA_IS_VALUE_ERROR (property))
+    if (ECMA_IS_VALUE_ERROR (to_string))
     {
       ecma_free_value (object);
       return to_string;
@@ -536,6 +536,8 @@ vm_init_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
   uint16_t register_end;
   jmem_cpointer_t *literal_start_p = frame_ctx_p->literal_start_p;
   bool is_strict = ((frame_ctx_p->bytecode_header_p->status_flags & CBC_CODE_FLAGS_STRICT_MODE) != 0);
+  jmem_cpointer_t self_reference;
+  ECMA_SET_NON_NULL_POINTER (self_reference, bytecode_header_p);
 
   /* Prepare. */
   if (!(bytecode_header_p->status_flags & CBC_CODE_FLAGS_FULL_LITERAL_ENCODING))
@@ -608,11 +610,7 @@ vm_init_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
           ecma_string_t *name_p = JMEM_CP_GET_NON_NULL_POINTER (ecma_string_t,
                                                                 literal_start_p[literal_index]);
 
-          vm_var_decl (frame_ctx_p, name_p);
-
           READ_LITERAL_INDEX (value_index);
-
-          ecma_object_t *ref_base_lex_env_p = ecma_op_resolve_reference_base (frame_ctx_p->lex_env_p, name_p);
 
           if (value_index < register_end)
           {
@@ -624,11 +622,25 @@ vm_init_loop (vm_frame_ctx_t *frame_ctx_p) /**< frame context */
                                                      literal_start_p[value_index]);
           }
 
-          /* TODO: check the return value */
-          ecma_op_put_value_lex_env_base (ref_base_lex_env_p,
-                                          name_p,
-                                          is_strict,
-                                          lit_value);
+          if (self_reference == literal_start_p[value_index])
+          {
+            ecma_op_create_immutable_binding (frame_ctx_p->lex_env_p, name_p);
+            ecma_op_initialize_immutable_binding (frame_ctx_p->lex_env_p,
+                                                  name_p,
+                                                  lit_value);
+          }
+          else
+          {
+            vm_var_decl (frame_ctx_p, name_p);
+
+            ecma_object_t *ref_base_lex_env_p = ecma_op_resolve_reference_base (frame_ctx_p->lex_env_p, name_p);
+
+            /* TODO: check the return value */
+            ecma_op_put_value_lex_env_base (ref_base_lex_env_p,
+                                            name_p,
+                                            is_strict,
+                                            lit_value);
+          }
 
           if (value_index >= register_end)
           {
