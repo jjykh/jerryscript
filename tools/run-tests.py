@@ -16,7 +16,9 @@
 # limitations under the License.
 
 import argparse
-from subprocess import CalledProcessError
+import os
+import subprocess
+import sys
 from settings import *
 
 OUTPUT_DIR = path.join(PROJECT_DIR, 'build', 'tests')
@@ -25,6 +27,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--toolchain', action='store', default='', help='Add toolchain file')
 parser.add_argument('--outdir', action='store', default=OUTPUT_DIR, help='Specify output directory (default: %(default)s)')
 parser.add_argument('--check-signed-off', action='store_true', default=False, help='Run signed-off check')
+parser.add_argument('--check-signed-off-tolerant', action='store_true', default=False, help='Run signed-off check in tolerant mode')
+parser.add_argument('--check-signed-off-travis', action='store_true', default=False, help='Run signed-off check in tolerant mode if on Travis CI and not checking a pull request')
 parser.add_argument('--check-cppcheck', action='store_true', default=False, help='Run cppcheck')
 parser.add_argument('--check-vera', action='store_true', default=False, help='Run vera check')
 parser.add_argument('--buildoption-test', action='store_true', default=False, help='Run buildoption-test')
@@ -39,7 +43,7 @@ if len(sys.argv) == 1:
 
 script_args = parser.parse_args()
 
-if os.path.isabs(script_args.outdir):
+if path.isabs(script_args.outdir):
     OUTPUT_DIR = script_args.outdir
 else:
     OUTPUT_DIR = path.join(PROJECT_DIR, script_args.outdir)
@@ -50,7 +54,7 @@ class Options:
     test_args = []
 
     def __init__(self, name = '', build_args = [], test_args = []):
-        self.out_dir = os.path.join(OUTPUT_DIR, name)
+        self.out_dir = path.join(OUTPUT_DIR, name)
         self.build_args = build_args
         self.build_args.append('--builddir=%s' % self.out_dir)
         self.test_args = test_args
@@ -108,10 +112,18 @@ def create_binary(buildoptions):
 
     try:
         script_output = subprocess.check_output(build_cmd)
-    except CalledProcessError as e:
+    except subprocess.CalledProcessError as e:
         return e.returncode
 
     return 0
+
+def run_check(runnable):
+    try:
+        ret = subprocess.check_call(runnable)
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+
+    return ret
 
 def run_jerry_tests():
     ret_build = ret_test = 0
@@ -171,7 +183,14 @@ def run_buildoption_test():
 def main():
     ret = 0
 
-    if script_args.all or script_args.check_signed_off:
+    if script_args.check_signed_off_tolerant:
+        ret = run_check([SIGNED_OFF_SCRIPT, '--tolerant'])
+
+    if not ret and script_args.check_signed_off_travis:
+        runnable = SIGNED_OFF_SCRIPT if os.getenv('TRAVIS_PULL_REQUEST', '0') != 'false' else [SIGNED_OFF_SCRIPT, '--tolerant']
+        ret = run_check(runnable)
+
+    if not ret and (script_args.all or script_args.check_signed_off):
         ret = run_check(SIGNED_OFF_SCRIPT)
 
     if not ret and (script_args.all or script_args.check_cppcheck):
