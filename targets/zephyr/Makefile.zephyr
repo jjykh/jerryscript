@@ -18,7 +18,7 @@ ifeq ($(.DEFAULT_GOAL),)
   $(warning no default goal is set)
 endif
 
-BOARD ?= arduino_101_factory
+BOARD ?= arduino_101
 BOARD_NAME ?= arduino_101
 
 ifeq ($(BOARD),qemu_x86)
@@ -47,6 +47,11 @@ endif
 
 INTERM     = build/$(BOARD)/obj-$(BOARD)
 OUTPUT     = build/$(BOARD)
+DOTCONFIG  = $(OUTPUT)/zephyr/.config
+
+include $(DOTCONFIG)
+override ARCH = $(subst ",,$(CONFIG_ARCH))
+# (this comment is to close the mismatched quote) "
 
 -include $(ZEPHYR_BASE)/boards/$(BOARD_NAME)/Makefile.board
 -include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
@@ -56,29 +61,42 @@ EXT_CFLAGS += -fno-stack-protector -fno-strict-overflow -ffreestanding
 EXT_CFLAGS += -fno-reorder-functions -fno-defer-pop -fdata-sections
 EXT_CFLAGS += -ffunction-sections -fno-inline-functions
 
-ifeq ($(BOARD),qemu_x86)
-CONFIG_TOOLCHAIN_VARIANT = x86
+ifeq ($(ARCH),x86)
+
 CPU = i686
+ifeq ($(CONFIG_X86_IAMCU),y)
+EXT_CFLAGS += -march=lakemont -mtune=lakemont -miamcu -msoft-float
+else
 EXT_CFLAGS += -march=pentium
+endif
 EXT_CFLAGS += -mpreferred-stack-boundary=2 -mno-sse
-else ifeq ($(BOARD),qemu_cortex_m3)
-CONFIG_TOOLCHAIN_VARIANT = arm
-CPU = arm7-m
-EXT_CFLAGS += -march=armv7-m -mthumb -mcpu=cortex-m3 -mabi=aapcs
-else ifeq ($(BOARD),frdm_k64f)
-CONFIG_TOOLCHAIN_VARIANT = arm
-CPU = arm7e-m
-EXT_CFLAGS += -march=armv7e-m -mthumb -mcpu=cortex-m4 -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16
-else ifeq ($(BOARD),em_starterkit)
+
+else ifeq ($(ARCH),arm)
+
+ifeq ($(CONFIG_CPU_CORTEX_M4),y)
+CPU = armv7e-m
+EXT_CFLAGS += -march=$(CPU) -mthumb -mcpu=cortex-m4 -mabi=aapcs
+else
+CPU = armv7-m
+EXT_CFLAGS += -march=$(CPU) -mthumb -mcpu=cortex-m3 -mabi=aapcs
+endif
+ifeq ($(CONFIG_FP_SOFTABI), y)
+EXT_CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+endif
+ifeq ($(CONFIG_FP_HARDABI), y)
+EXT_CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+endif
+
+else ifeq ($(ARCH),arc)
+
 # TODO: Tested only to build, untested to boot
-CONFIG_TOOLCHAIN_VARIANT = arc
 CPU = arc
 EXT_CFLAGS += -mARCv2EM -mav2em -mno-sdata
+
 else
-CONFIG_TOOLCHAIN_VARIANT = iamcu
-CPU = i686
-EXT_CFLAGS += -march=lakemont -mtune=lakemont -miamcu -msoft-float
-EXT_CFLAGS += -mpreferred-stack-boundary=2 -mno-sse
+
+CPU = $(error ARCH=$(ARCH) is not supported)
+
 endif
 
 EXT_CFLAGS += -Wall -Wno-format-zero-length -Wno-pointer-sign
@@ -86,6 +104,7 @@ EXT_CFLAGS += -Werror=format -Werror=implicit-int -Wno-unused-but-set-variable
 EXT_CFLAGS += -Wno-main -Wno-strict-aliasing -Wno-old-style-declaration
 EXT_CFLAGS += -Wno-error=format=
 EXT_CFLAGS += -D_XOPEN_SOURCE=700
+EXT_CFLAGS += -nostdlib
 
 # Pass2
 -include $(ZEPHYR_BASE)/scripts/Makefile.toolchain.$(ZEPHYR_GCC_VARIANT)
@@ -95,10 +114,9 @@ CC = $(CROSS_COMPILE)gcc
 ZEPHYR_LIBC_INC = $(subst -I,,$(TOOLCHAIN_CFLAGS))
 LIB_INCLUDE_DIR += -L $(CURDIR)/$(OUTPUT)
 
-# TODO: There is a warning when compiling in some architectures related to __sputc_r
 EXT_CFLAGS += -Wno-error=conversion
 EXT_CFLAGS += $(LIB_INCLUDE_DIR)
-EXT_CFLAGS += $(TOOLCHAIN_CFLAGS)
+EXT_CFLAGS += $(subst -I,-isystem,$(TOOLCHAIN_CFLAGS))
 
 EXTERNAL_LIB = $(INTERM)/lib/libjerry-core.a
 ZEPHYR_BIN = $(OUTPUT)/zephyr/zephyr.strip
@@ -109,6 +127,9 @@ BUILD_CONFIG = O="$(OUTPUT)/zephyr" V=$(V) USER_LIBS="$(LIBS)" USER_LIB_INCLUDE_
 
 .PHONY: all
 all: jerry zephyr
+
+$(DOTCONFIG):
+	make -f $(TARGET_ZEPHYR)/Makefile $(BUILD_CONFIG) initconfig
 
 $(EXTERNAL_LIB):
 ifdef V
@@ -127,7 +148,6 @@ endif
 	 -DEXTERNAL_CMAKE_C_COMPILER=$(CC) \
 	 -DEXTERNAL_CMAKE_C_COMPILER_ID=GNU \
 	 -DEXTERNAL_CMAKE_SYSTEM_PROCESSOR=$(CPU) \
-	 -DCOMPILER_DEFAULT_LIBC=OFF \
 	 -DJERRY_CMDLINE=OFF \
 	 -DEXTERNAL_COMPILE_FLAGS="$(EXT_CFLAGS)" \
 	 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain_external.cmake \

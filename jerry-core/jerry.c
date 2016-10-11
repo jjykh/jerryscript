@@ -65,7 +65,7 @@ static const char * const wrong_args_msg_p = "wrong type of argument";
 
 #endif /* JERRY_ENABLE_ERROR_MESSAGES */
 
-/** \addtogroup jerry_extension Jerry engine extension interface
+/** \addtogroup jerry Jerry engine interface
  * @{
  */
 
@@ -1084,10 +1084,10 @@ jerry_has_property (const jerry_value_t obj_val, /**< object value */
     return false;
   }
 
-  ecma_property_t *prop_p = ecma_op_object_get_property (ecma_get_object_from_value (obj_val),
-                                                         ecma_get_string_from_value (prop_name_val));
+  bool has_property = ecma_op_object_has_property (ecma_get_object_from_value (obj_val),
+                                                   ecma_get_string_from_value (prop_name_val));
 
-  return ecma_make_boolean_value (prop_p != NULL);
+  return ecma_make_boolean_value (has_property);
 } /* jerry_has_property */
 
 /**
@@ -1108,10 +1108,10 @@ jerry_has_own_property (const jerry_value_t obj_val, /**< object value */
     return false;
   }
 
-  ecma_property_t *prop_p = ecma_op_object_get_own_property (ecma_get_object_from_value (obj_val),
-                                                             ecma_get_string_from_value (prop_name_val));
+  bool has_property = ecma_op_object_has_own_property (ecma_get_object_from_value (obj_val),
+                                                       ecma_get_string_from_value (prop_name_val));
 
-  return ecma_make_boolean_value (prop_p != NULL);
+  return ecma_make_boolean_value (has_property);
 } /* jerry_has_own_property */
 
 
@@ -1390,15 +1390,14 @@ jerry_get_own_property_descriptor (const jerry_value_t  obj_val, /**< object val
     return false;
   }
 
-  ecma_property_t *property_p = ecma_op_object_get_property (ecma_get_object_from_value (obj_val),
-                                                             ecma_get_string_from_value (prop_name_val));
+  ecma_property_descriptor_t prop_desc;
 
-  if (property_p == NULL)
+  if (!ecma_op_object_get_own_property_descriptor (ecma_get_object_from_value (obj_val),
+                                                   ecma_get_string_from_value (prop_name_val),
+                                                   &prop_desc))
   {
     return false;
   }
-
-  ecma_property_descriptor_t prop_desc = ecma_get_property_descriptor_from_property (property_p);
 
   prop_desc_p->is_configurable_defined = true;
   prop_desc_p->is_configurable = prop_desc.is_configurable;

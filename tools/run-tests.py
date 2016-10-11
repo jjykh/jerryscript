@@ -31,6 +31,7 @@ parser.add_argument('--check-signed-off-tolerant', action='store_true', default=
 parser.add_argument('--check-signed-off-travis', action='store_true', default=False, help='Run signed-off check in tolerant mode if on Travis CI and not checking a pull request')
 parser.add_argument('--check-cppcheck', action='store_true', default=False, help='Run cppcheck')
 parser.add_argument('--check-vera', action='store_true', default=False, help='Run vera check')
+parser.add_argument('--check-license', action='store_true', default=False, help='Run license check')
 parser.add_argument('--buildoption-test', action='store_true', default=False, help='Run buildoption-test')
 parser.add_argument('--jerry-tests', action='store_true', default=False, help='Run jerry-tests')
 parser.add_argument('--jerry-test-suite', action='store_true', default=False, help='Run jerry-test-suite')
@@ -62,8 +63,8 @@ class Options:
 
 # Test options for unittests
 jerry_unittests_options = [
-                           Options('unittests', ['--unittests', '--error-messages=on']),
-                           Options('unittests-debug', ['--unittests', '--debug', '--error-messages=on']),
+                           Options('unittests', ['--unittests', '--error-messages=on', '--snapshot-save=on', '--snapshot-exec=on']),
+                           Options('unittests-debug', ['--unittests', '--debug', '--error-messages=on', '--snapshot-save=on', '--snapshot-exec=on']),
                           ]
 
 # Test options for jerry-tests
@@ -91,8 +92,7 @@ jerry_buildoptions = [
                       Options('buildoption_test-mem_stats', ['--mem-stats=on']),
                       Options('buildoption_test-show_opcodes', ['--show-opcodes=on']),
                       Options('buildoption_test-show_regexp_opcodes', ['--show-regexp-opcodes=on']),
-                      Options('buildoption_test-jerry_libc', ['--jerry-libc=on', '--compiler-default-libc=off']),
-                      Options('buildoption_test-compiler_default_libc', ['--compiler-default-libc=on', '--jerry-libc=off']),
+                      Options('buildoption_test-compiler_default_libc', ['--jerry-libc=off']),
                      ]
 
 def get_bin_dir_path(out_dir):
@@ -118,6 +118,8 @@ def create_binary(buildoptions):
     return 0
 
 def run_check(runnable):
+    sys.stderr.write('Test command: %s\n' % ' '.join(runnable))
+
     try:
         ret = subprocess.check_call(runnable)
     except subprocess.CalledProcessError as e:
@@ -187,17 +189,19 @@ def main():
         ret = run_check([SIGNED_OFF_SCRIPT, '--tolerant'])
 
     if not ret and script_args.check_signed_off_travis:
-        runnable = SIGNED_OFF_SCRIPT if os.getenv('TRAVIS_PULL_REQUEST', '0') != 'false' else [SIGNED_OFF_SCRIPT, '--tolerant']
-        ret = run_check(runnable)
+        ret = run_check([SIGNED_OFF_SCRIPT, '--travis'])
 
     if not ret and (script_args.all or script_args.check_signed_off):
-        ret = run_check(SIGNED_OFF_SCRIPT)
+        ret = run_check([SIGNED_OFF_SCRIPT])
 
     if not ret and (script_args.all or script_args.check_cppcheck):
-        ret = run_check(CPPCHECK_SCRIPT)
+        ret = run_check([CPPCHECK_SCRIPT])
 
     if not ret and (script_args.all or script_args.check_vera):
-        ret = run_check(VERA_SCRIPT)
+        ret = run_check([VERA_SCRIPT])
+
+    if not ret and (script_args.all or script_args.check_license):
+        ret = run_check([LICENSE_SCRIPT])
 
     if not ret and (script_args.all or script_args.jerry_tests):
         ret = run_jerry_tests()
