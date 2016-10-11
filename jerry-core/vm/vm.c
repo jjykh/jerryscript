@@ -2669,7 +2669,7 @@ vm_run (const ecma_compiled_code_t *bytecode_header_p, /**< byte-code data heade
   frame_ctx.is_eval_code = is_eval_code;
   frame_ctx.call_operation = VM_NO_EXEC_OP;
 
-  ecma_value_t stack[call_stack_size];
+  ecma_value_t *stack = (ecma_value_t *)alloca(sizeof(ecma_value_t) * call_stack_size);
   frame_ctx.registers_p = stack;
 
   return vm_execute (&frame_ctx, arg_list_p, arg_list_len);
