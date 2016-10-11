@@ -2622,43 +2622,6 @@ vm_execute (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
   return completion_value;
 } /* vm_execute */
 
-#define INLINE_STACK_SIZE 16
-
-/**
- * Run the code with inline stack.
- *
- * @return ecma value
- */
-static ecma_value_t __attr_noinline___
-vm_run_with_inline_stack (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
-                          const ecma_value_t *arg_p, /**< arguments list */
-                          ecma_length_t arg_list_len) /**< length of arguments list */
-{
-  ecma_value_t inline_stack[INLINE_STACK_SIZE];
-
-  frame_ctx_p->registers_p = inline_stack;
-
-  return vm_execute (frame_ctx_p, arg_p, arg_list_len);
-} /* vm_run_with_inline_stack */
-
-/**
- * Run the code with inline stack.
- *
- * @return ecma value
- */
-static ecma_value_t __attr_noinline___
-vm_run_with_alloca (vm_frame_ctx_t *frame_ctx_p, /**< frame context */
-                    const ecma_value_t *arg_p, /**< arguments list */
-                    ecma_length_t arg_list_len, /**< length of arguments list */
-                    uint32_t call_stack_size) /**< call stack size */
-{
-  ecma_value_t *stack = (ecma_value_t *) alloca(sizeof(ecma_value_t) * call_stack_size);
-
-  frame_ctx_p->registers_p = stack;
-
-  return vm_execute (frame_ctx_p, arg_p, arg_list_len);
-} /* vm_run_with_alloca */
-
 /**
  * Run the code.
  *
