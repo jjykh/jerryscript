@@ -1,6 +1,6 @@
 /* Copyright 2014-2016 Samsung Electronics Co., Ltd.
  * Copyright 2016 University of Szeged.
-
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@
 #define __noreturn __attribute__((noreturn))
 #define __attr_noinline___ __attribute__((noinline))
 #define __attr_return_value_should_be_checked___ __attribute__((warn_unused_result))
+#define __attr_hot___ __attribute__((hot))
 #ifndef __attr_always_inline___
 # define __attr_always_inline___ __attribute__((always_inline))
 #endif /* !__attr_always_inline___ */

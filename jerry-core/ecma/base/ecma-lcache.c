@@ -89,8 +89,8 @@ ecma_lcache_insert (ecma_object_t *object_p, /**< object */
   JERRY_ASSERT (object_p != NULL);
   JERRY_ASSERT (prop_name_p != NULL);
   JERRY_ASSERT (prop_p != NULL && !ecma_is_property_lcached (prop_p));
-  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA
-                || ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDACCESSOR);
+  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (*prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA
+                || ECMA_PROPERTY_GET_TYPE (*prop_p) == ECMA_PROPERTY_TYPE_NAMEDACCESSOR);
 
 #ifndef CONFIG_ECMA_LCACHE_DISABLE
   jmem_cpointer_t object_cp;
@@ -196,8 +196,8 @@ ecma_lcache_invalidate (ecma_object_t *object_p, /**< object */
   JERRY_ASSERT (object_p != NULL);
   JERRY_ASSERT (prop_name_p != NULL);
   JERRY_ASSERT (prop_p != NULL && ecma_is_property_lcached (prop_p));
-  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA
-                || ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDACCESSOR);
+  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (*prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA
+                || ECMA_PROPERTY_GET_TYPE (*prop_p) == ECMA_PROPERTY_TYPE_NAMEDACCESSOR);
 
 #ifndef CONFIG_ECMA_LCACHE_DISABLE
   jmem_cpointer_t object_cp;
@@ -210,8 +210,6 @@ ecma_lcache_invalidate (ecma_object_t *object_p, /**< object */
   {
     if (entry_p->object_cp != ECMA_NULL_POINTER && entry_p->prop_p == prop_p)
     {
-      JERRY_ASSERT (ECMA_GET_NON_NULL_POINTER (ecma_string_t,
-                                               entry_p->prop_name_cp) == prop_name_p);
       JERRY_ASSERT (entry_p->object_cp == object_cp);
 
       ecma_lcache_invalidate_entry (entry_p);

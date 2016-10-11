@@ -31,10 +31,10 @@ set(UNITTESTS     OFF CACHE BOOL "Build unit tests?")
 
 # Optional build settings
 set(PORT_DIR                  "${CMAKE_SOURCE_DIR}/targets/default" CACHE STRING "Use default or external port?")
-set(COMPILER_DEFAULT_LIBC     OFF                                   CACHE BOOL   "Use compiler default libc?")
-set(ENABLE_LTO                OFF                                   CACHE BOOL   "Enable LTO build?")
-set(ENABLE_ALL_IN_ONE         ON                                    CACHE BOOL   "Enable all-in-one build?")
+set(ENABLE_LTO                ON                                    CACHE BOOL   "Enable LTO build?")
+set(ENABLE_ALL_IN_ONE         OFF                                   CACHE BOOL   "Enable all-in-one build?")
 set(ENABLE_STRIP              ON                                    CACHE BOOL   "Enable stripping all symbols from release binary?")
+set(ENABLE_STATIC_LINK        ON                                    CACHE BOOL   "Enable static linking?")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
@@ -45,11 +45,7 @@ if("${PLATFORM}" STREQUAL "DARWIN")
   set(ENABLE_ALL_IN_ONE "ON")
   set(JERRY_LIBC "OFF")
   set(JERRY_LIBM "OFF")
-  set(COMPILER_DEFAULT_LIBC "ON")
-endif()
-
-if(JERRY_LIBC AND COMPILER_DEFAULT_LIBC)
-  message(FATAL_ERROR "JERRY_LIBC and COMPILER_DEFAULT_LIBC cannot be enabled at the same time")
+  set(ENABLE_STATIC_LINK "OFF")
 endif()
 
 # Status messages
@@ -61,10 +57,10 @@ message(STATUS "JERRY_LIBM                " ${JERRY_LIBM})
 message(STATUS "JERRY_CMDLINE             " ${JERRY_CMDLINE})
 message(STATUS "UNITTESTS                 " ${UNITTESTS})
 message(STATUS "PORT_DIR                  " ${PORT_DIR})
-message(STATUS "COMPILER_DEFAULT_LIBC     " ${COMPILER_DEFAULT_LIBC})
 message(STATUS "ENABLE_LTO                " ${ENABLE_LTO})
 message(STATUS "ENABLE_ALL_IN_ONE         " ${ENABLE_ALL_IN_ONE})
 message(STATUS "ENABLE_STRIP              " ${ENABLE_STRIP})
+message(STATUS "ENABLE_STATIC_LINK        " ${ENABLE_STATIC_LINK})
 
 # Setup directories
 # Project binary dir
@@ -111,6 +107,11 @@ set(CMAKE_C_FLAGS_RELEASE "-Os")
 jerry_add_compile_flags(${FLAGS_COMMON_ARCH})
 jerry_add_flags(CMAKE_EXE_LINKER_FLAGS ${FLAGS_COMMON_ARCH})
 
+# Enable static build
+if(ENABLE_STATIC_LINK)
+  jerry_add_link_flags("-static")
+endif()
+
 # LTO
 if(ENABLE_LTO)
   jerry_add_compile_flags(-flto)
@@ -126,33 +127,8 @@ if(ENABLE_LTO)
 endif()
 
 # Define _BSD_SOURCE if we use default port and compiler default libc
-if(${PORT_DIR} STREQUAL "${CMAKE_SOURCE_DIR}/targets/default" AND COMPILER_DEFAULT_LIBC)
+if(${PORT_DIR} STREQUAL "${CMAKE_SOURCE_DIR}/targets/default" AND NOT JERRY_LIBC)
   set(DEFINES_JERRY ${DEFINES_JERRY} _BSD_SOURCE)
-endif()
-
-# Imported targets prefix
-set(PREFIX_IMPORTED_LIB imported_)
-
-# Imported libraries
-if(("${PLATFORM}" STREQUAL "DARWIN") AND (NOT CMAKE_COMPILER_IS_GNUCC))
-  # libclang_rt.osx
-  set(IMPORTED_LIB "${PREFIX_IMPORTED_LIB}libclang_rt.osx")
-  add_library(${IMPORTED_LIB} STATIC IMPORTED)
-  execute_process(COMMAND ${CMAKE_C_COMPILER} ${FLAGS_COMMON_ARCH} -print-file-name=
-                  OUTPUT_VARIABLE IMPORTED_LIBCLANG_RT_LOCATION
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(IMPORTED_LIBCLANG_RT_LOCATION "${IMPORTED_LIBCLANG_RT_LOCATION}/lib/darwin/libclang_rt.osx.a")
-  set_property(TARGET ${IMPORTED_LIB}
-               PROPERTY IMPORTED_LOCATION ${IMPORTED_LIBCLANG_RT_LOCATION})
-else()
-  # libgcc
-  set(IMPORTED_LIB "${PREFIX_IMPORTED_LIB}libgcc")
-  add_library(${IMPORTED_LIB} STATIC IMPORTED)
-  execute_process(COMMAND ${CMAKE_C_COMPILER} ${FLAGS_COMMON_ARCH} -print-file-name=libgcc.a
-                  OUTPUT_VARIABLE IMPORTED_LIBGCC_LOCATION
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set_property(TARGET ${IMPORTED_LIB}
-               PROPERTY IMPORTED_LOCATION ${IMPORTED_LIBGCC_LOCATION})
 endif()
 
 # Compiler / Linker flags
@@ -163,8 +139,8 @@ else()
   jerry_add_link_flags(-Wl,-z,noexecstack)
 endif()
 
-# Turn off linking to compiler's default libc, in case jerry-libc or external is used
-if(NOT COMPILER_DEFAULT_LIBC)
+# Turn off linking to compiler's default libc, in case jerry-libc is used
+if(JERRY_LIBC)
   jerry_add_link_flags(-nostdlib)
 endif()
 
@@ -172,26 +148,19 @@ endif()
 jerry_add_compile_flags(-fno-stack-protector)
 
 # Debug information
-jerry_add_compile_flags(-g -gdwarf-4)
+jerry_add_compile_flags(-g)
 
 jerry_add_compile_warnings(all extra format-nonliteral init-self conversion sign-conversion format-security missing-declarations)
 jerry_add_compile_flags(-Wno-stack-protector -Wno-attributes)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-  if(JERRY_LIBC)
-    jerry_add_compile_flags(-Werror)
-  endif()
   jerry_add_compile_warnings(logical-op)
 else()
   jerry_add_compile_flags(-Wno-nested-anon-types -Wno-static-in-inline)
 endif()
 
-if(DEFINED EXTERNAL_COMPILE_FLAGS)
-  jerry_add_compile_flags(${EXTERNAL_COMPILE_FLAGS})
-endif()
-
-if(DEFINED EXTERNAL_LINKER_FLAGS)
-  jerry_add_link_flags(${EXTERNAL_LINKER_FLAGS})
+if(JERRY_LIBC)
+  jerry_add_compile_flags(-Werror)
 endif()
 
 # C
@@ -200,6 +169,15 @@ jerry_add_compile_flags(-std=c99 -pedantic)
 # Strip binary
 if(ENABLE_STRIP AND NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
   jerry_add_link_flags(-s)
+endif()
+
+# External compiler & linker flags
+if(DEFINED EXTERNAL_COMPILE_FLAGS)
+  jerry_add_compile_flags(${EXTERNAL_COMPILE_FLAGS})
+endif()
+
+if(DEFINED EXTERNAL_LINKER_FLAGS)
+  jerry_add_link_flags(${EXTERNAL_LINKER_FLAGS})
 endif()
 
 # Jerry's libc

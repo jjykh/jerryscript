@@ -45,11 +45,19 @@ static const uint8_t *
 read_file (const char *file_name,
            size_t *out_size_p)
 {
-  FILE *file = fopen (file_name, "r");
-  if (file == NULL)
+  FILE *file;
+  if (!strcmp ("-", file_name))
   {
-    jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Error: failed to open file: %s\n", file_name);
-    return NULL;
+    file = stdin;
+  }
+  else
+  {
+    file = fopen (file_name, "r");
+    if (file == NULL)
+    {
+      jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Error: failed to open file: %s\n", file_name);
+      return NULL;
+    }
   }
 
   size_t bytes_read = fread (buffer, 1u, sizeof (buffer), file);
@@ -85,7 +93,7 @@ assert_handler (const jerry_value_t func_obj_val __attribute__((unused)), /**< f
   }
   else
   {
-    jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Script error: assertion failed\n");
+    jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Script Error: assertion failed\n");
     exit (JERRY_STANDALONE_EXIT_CODE_FAIL);
   }
 } /* assert_handler */
@@ -117,6 +125,7 @@ print_help (char *name)
                       "  --exec-snapshot FILE\n"
                       "  --log-level [0-3]\n"
                       "  --abort-on-fail\n"
+                      "  --no-prompt\n"
                       "\n",
                       name);
 } /* print_help */
@@ -144,7 +153,7 @@ print_unhandled_exception (jerry_value_t error_value)
   }
   err_str_buf[err_str_size] = 0;
 
-  jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Script Error: unhandled exception: %s\n", err_str_buf);
+  jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Script Error: %s\n", err_str_buf);
   jerry_release_value (err_str_val);
 } /* print_unhandled_exception */
 
@@ -183,6 +192,7 @@ main (int argc,
   const char *save_snapshot_file_name_p = NULL;
 
   bool is_repl_mode = false;
+  bool no_prompt = false;
 
   for (i = 1; i < argc; i++)
   {
@@ -193,7 +203,7 @@ main (int argc,
     }
     else if (!strcmp ("-v", argv[i]) || !strcmp ("--version", argv[i]))
     {
-      jerry_port_console ("Version: \t%d.%d\n\n", JERRY_API_MAJOR_VERSION, JERRY_API_MINOR_VERSION);
+      jerry_port_console ("Version: %d.%d%s\n", JERRY_API_MAJOR_VERSION, JERRY_API_MINOR_VERSION, JERRY_COMMIT_HASH);
       return JERRY_STANDALONE_EXIT_CODE_OK;
     }
     else if (!strcmp ("--mem-stats", argv[i]))
@@ -276,6 +286,14 @@ main (int argc,
     {
       jerry_port_default_set_abort_on_fail (true);
     }
+    else if (!strcmp ("--no-prompt", argv[i]))
+    {
+      no_prompt = true;
+    }
+    else if (!strcmp ("-", argv[i]))
+    {
+      file_names[files_counter++] = argv[i];
+    }
     else if (!strncmp ("-", argv[i], 1))
     {
       jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Error: unrecognized option: %s\n", argv[i]);
@@ -325,7 +343,7 @@ main (int argc,
 
   if (!is_assert_added)
   {
-    jerry_port_log (JERRY_LOG_LEVEL_ERROR, "Warning: failed to register 'assert' method.");
+    jerry_port_log (JERRY_LOG_LEVEL_WARNING, "Warning: failed to register 'assert' method.");
   }
 
   jerry_value_t ret_value = jerry_create_undefined ();
@@ -407,7 +425,7 @@ main (int argc,
 
   if (is_repl_mode)
   {
-    const char *prompt = "jerry> ";
+    const char *prompt = !no_prompt ? "jerry> " : "";
     bool is_done = false;
 
     jerry_value_t global_obj_val = jerry_get_global_object ();

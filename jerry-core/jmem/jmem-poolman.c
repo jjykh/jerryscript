@@ -97,7 +97,7 @@ jmem_pools_finalize (void)
  * @return pointer to allocated chunk, if allocation was successful,
  *         or NULL - if not enough memory.
  */
-inline void * __attribute__((hot)) __attr_always_inline___
+inline void * __attr_hot___ __attr_always_inline___
 jmem_pools_alloc (size_t size) /**< size of the chunk */
 {
 #ifdef JMEM_GC_BEFORE_EACH_ALLOC
@@ -158,7 +158,7 @@ jmem_pools_alloc (size_t size) /**< size of the chunk */
 /**
  * Free the chunk
  */
-inline void __attribute__((hot)) __attr_always_inline___
+inline void __attr_hot___ __attr_always_inline___
 jmem_pools_free (void *chunk_p, /**< pointer to the chunk */
                  size_t size) /**< size of the chunk */
 {
@@ -336,6 +336,12 @@ jmem_pools_stat_dealloc (void)
   JERRY_CONTEXT (jmem_pools_stats).free_chunks--;
 } /* jmem_pools_stat_dealloc */
 #endif /* JMEM_STATS */
+
+#undef VALGRIND_NOACCESS_SPACE
+#undef VALGRIND_UNDEFINED_SPACE
+#undef VALGRIND_DEFINED_SPACE
+#undef VALGRIND_FREYA_MALLOCLIKE_SPACE
+#undef VALGRIND_FREYA_FREELIKE_SPACE
 
 /**
  * @}

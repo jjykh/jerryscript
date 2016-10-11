@@ -151,9 +151,7 @@ ecma_builtin_object_prototype_object_has_own_property (ecma_value_t this_arg, /*
   ecma_object_t *obj_p = ecma_get_object_from_value (obj_val);
 
   /* 3. */
-  ecma_property_t *property_p = ecma_op_object_get_own_property (obj_p, property_name_string_p);
-
-  if (property_p != NULL)
+  if (ecma_op_object_has_own_property (obj_p, property_name_string_p))
   {
     return_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_TRUE);
   }
@@ -161,6 +159,7 @@ ecma_builtin_object_prototype_object_has_own_property (ecma_value_t this_arg, /*
   {
     return_value = ecma_make_simple_value (ECMA_SIMPLE_VALUE_FALSE);
   }
+
   ECMA_FINALIZE (obj_val);
 
   ECMA_FINALIZE (to_string_val);
@@ -243,15 +242,17 @@ ecma_builtin_object_prototype_object_property_is_enumerable (ecma_value_t this_a
   ecma_object_t *obj_p = ecma_get_object_from_value (obj_val);
 
   /* 3. */
-  ecma_property_t *property_p = ecma_op_object_get_own_property (obj_p, property_name_string_p);
+  ecma_property_t property = ecma_op_object_get_own_property (obj_p,
+                                                              property_name_string_p,
+                                                              NULL,
+                                                              ECMA_PROPERTY_GET_NO_OPTIONS);
 
   /* 4. */
-  if (property_p != NULL)
+  if (property != ECMA_PROPERTY_TYPE_NOT_FOUND)
   {
-    bool is_enumerable = ecma_is_property_enumerable (property_p);
+    bool is_enumerable = ecma_is_property_enumerable (property);
 
-    return_value = ecma_make_simple_value (is_enumerable ? ECMA_SIMPLE_VALUE_TRUE
-                                                         : ECMA_SIMPLE_VALUE_FALSE);
+    return_value = ecma_make_boolean_value (is_enumerable);
   }
   else
   {

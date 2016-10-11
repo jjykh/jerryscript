@@ -127,89 +127,85 @@ re_parse_regexp_flags (ecma_string_t *flags_str_p, /**< Input string with flags 
 } /* re_parse_regexp_flags  */
 
 /**
+ * Set a data property value for a regexp object.
+ */
+static void
+re_set_data_property (ecma_object_t *re_object_p, /**< RegExp object */
+                      ecma_string_t *property_name_p, /**< property name */
+                      uint8_t prop_attributes, /**< property attributes */
+                      ecma_value_t value) /**< property value */
+{
+  ecma_property_ref_t property_ref;
+  ecma_property_t property = ecma_op_object_get_own_property (re_object_p,
+                                                              property_name_p,
+                                                              &property_ref,
+                                                              ECMA_PROPERTY_GET_VALUE);
+
+  if (property == ECMA_PROPERTY_TYPE_NOT_FOUND)
+  {
+    property_ref.value_p = ecma_create_named_data_property (re_object_p,
+                                                            property_name_p,
+                                                            prop_attributes,
+                                                            NULL);
+  }
+  else
+  {
+    JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (property) == ECMA_PROPERTY_TYPE_NAMEDDATA
+                  && !ecma_is_property_configurable (property));
+  }
+
+  ecma_named_data_property_assign_value (re_object_p, property_ref.value_p, value);
+} /* re_set_data_property */
+
+/**
  * Initializes the source, global, ignoreCase, multiline, and lastIndex properties of RegExp instance.
  */
 void
-re_initialize_props (ecma_object_t *re_obj_p, /**< RegExp obejct */
+re_initialize_props (ecma_object_t *re_obj_p, /**< RegExp object */
                      ecma_string_t *source_p, /**< source string */
                      uint16_t flags) /**< flags */
 {
  /* Set source property. ECMA-262 v5, 15.10.7.1 */
-  ecma_string_t *magic_string_p = ecma_get_magic_string (LIT_MAGIC_STRING_SOURCE);
-  ecma_property_t *prop_p = ecma_find_named_property (re_obj_p, magic_string_p);
+  ecma_string_t *magic_string_p;
 
-  if (prop_p == NULL)
-  {
-    prop_p = ecma_create_named_data_property (re_obj_p,
-                                              magic_string_p,
-                                              ECMA_PROPERTY_FIXED);
-  }
-
+  magic_string_p = ecma_get_magic_string (LIT_MAGIC_STRING_SOURCE);
+  re_set_data_property (re_obj_p,
+                        magic_string_p,
+                        ECMA_PROPERTY_FIXED,
+                        ecma_make_string_value (source_p));
   ecma_deref_ecma_string (magic_string_p);
-  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA);
-  ecma_named_data_property_assign_value (re_obj_p,
-                                         prop_p,
-                                         ecma_make_string_value (source_p));
 
   /* Set global property. ECMA-262 v5, 15.10.7.2 */
   magic_string_p = ecma_get_magic_string (LIT_MAGIC_STRING_GLOBAL);
-  prop_p = ecma_find_named_property (re_obj_p, magic_string_p);
-
-  if (prop_p == NULL)
-  {
-    prop_p = ecma_create_named_data_property (re_obj_p,
-                                              magic_string_p,
-                                              ECMA_PROPERTY_FIXED);
-  }
-
+  re_set_data_property (re_obj_p,
+                        magic_string_p,
+                        ECMA_PROPERTY_FIXED,
+                        ecma_make_boolean_value (flags & RE_FLAG_GLOBAL));
   ecma_deref_ecma_string (magic_string_p);
-  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA);
-  ecma_set_named_data_property_value (prop_p, ecma_make_boolean_value (flags & RE_FLAG_GLOBAL));
 
   /* Set ignoreCase property. ECMA-262 v5, 15.10.7.3 */
   magic_string_p = ecma_get_magic_string (LIT_MAGIC_STRING_IGNORECASE_UL);
-  prop_p = ecma_find_named_property (re_obj_p, magic_string_p);
-
-  if (prop_p == NULL)
-  {
-    prop_p = ecma_create_named_data_property (re_obj_p,
-                                              magic_string_p,
-                                              ECMA_PROPERTY_FIXED);
-  }
-
+  re_set_data_property (re_obj_p,
+                        magic_string_p,
+                        ECMA_PROPERTY_FIXED,
+                        ecma_make_boolean_value (flags & RE_FLAG_IGNORE_CASE));
   ecma_deref_ecma_string (magic_string_p);
-  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA);
-  ecma_set_named_data_property_value (prop_p, ecma_make_boolean_value (flags & RE_FLAG_IGNORE_CASE));
 
   /* Set multiline property. ECMA-262 v5, 15.10.7.4 */
   magic_string_p = ecma_get_magic_string (LIT_MAGIC_STRING_MULTILINE);
-  prop_p = ecma_find_named_property (re_obj_p, magic_string_p);
-
-  if (prop_p == NULL)
-  {
-    prop_p = ecma_create_named_data_property (re_obj_p,
-                                              magic_string_p,
-                                              ECMA_PROPERTY_FIXED);
-  }
-
+  re_set_data_property (re_obj_p,
+                        magic_string_p,
+                        ECMA_PROPERTY_FIXED,
+                        ecma_make_boolean_value (flags & RE_FLAG_MULTILINE));
   ecma_deref_ecma_string (magic_string_p);
-  JERRY_ASSERT (ECMA_PROPERTY_GET_TYPE (prop_p) == ECMA_PROPERTY_TYPE_NAMEDDATA);
-  ecma_set_named_data_property_value (prop_p, ecma_make_boolean_value (flags & RE_FLAG_MULTILINE));
 
   /* Set lastIndex property. ECMA-262 v5, 15.10.7.5 */
   magic_string_p = ecma_get_magic_string (LIT_MAGIC_STRING_LASTINDEX_UL);
-  prop_p = ecma_find_named_property (re_obj_p, magic_string_p);
-
-  if (prop_p == NULL)
-  {
-    prop_p = ecma_create_named_data_property (re_obj_p,
-                                              magic_string_p,
-                                              ECMA_PROPERTY_FLAG_WRITABLE);
-  }
-
+  re_set_data_property (re_obj_p,
+                        magic_string_p,
+                        ECMA_PROPERTY_FLAG_WRITABLE,
+                        ecma_make_integer_value (0));
   ecma_deref_ecma_string (magic_string_p);
-
-  ecma_named_data_property_assign_value (re_obj_p, prop_p, ecma_make_integer_value (0));
 } /* re_initialize_props */
 
 /**
@@ -419,7 +415,7 @@ re_match_regexp (re_matcher_ctx_t *re_ctx_p, /**< RegExp matcher context */
         }
 
         ecma_char_t ch = lit_utf8_read_next (&str_curr_p);
-        JERRY_TRACE_MSG ("Period matching '.' to %d: ", (uint32_t) ch);
+        JERRY_TRACE_MSG ("Period matching '.' to %u: ", (unsigned int) ch);
 
         if (lit_char_is_line_terminator (ch))
         {
@@ -612,8 +608,9 @@ re_match_regexp (re_matcher_ctx_t *re_ctx_p, /**< RegExp matcher context */
         {
           ecma_char_t ch1 = re_canonicalize (re_get_char (&bc_p), is_ignorecase);
           ecma_char_t ch2 = re_canonicalize (re_get_char (&bc_p), is_ignorecase);
-          JERRY_TRACE_MSG ("num_of_ranges=%d, ch1=%d, ch2=%d, curr_ch=%d; ",
-                           num_of_ranges, ch1, ch2, curr_ch);
+          JERRY_TRACE_MSG ("num_of_ranges=%u, ch1=%u, ch2=%u, curr_ch=%u; ",
+                           (unsigned int) num_of_ranges, (unsigned int) ch1,
+                           (unsigned int) ch2, (unsigned int) curr_ch);
 
           if (curr_ch >= ch1 && curr_ch <= ch2)
           {
@@ -648,7 +645,7 @@ re_match_regexp (re_matcher_ctx_t *re_ctx_p, /**< RegExp matcher context */
         uint32_t backref_idx;
 
         backref_idx = re_get_value (&bc_p);
-        JERRY_TRACE_MSG ("Execute RE_OP_BACKREFERENCE (idx: %d): ", backref_idx);
+        JERRY_TRACE_MSG ("Execute RE_OP_BACKREFERENCE (idx: %u): ", (unsigned int) backref_idx);
         backref_idx *= 2;  /* backref n -> saved indices [n*2, n*2+1] */
         JERRY_ASSERT (backref_idx >= 2 && backref_idx + 1 < re_ctx_p->num_of_captures);
 
@@ -733,7 +730,7 @@ re_match_regexp (re_matcher_ctx_t *re_ctx_p, /**< RegExp matcher context */
 
         while (*bc_p == RE_OP_ALTERNATIVE)
         {
-          JERRY_TRACE_MSG (", jump: %d", offset);
+          JERRY_TRACE_MSG (", jump: %u", (unsigned int) offset);
           bc_p++;
           offset = re_get_value (&bc_p);
           bc_p += offset;
@@ -1152,7 +1149,7 @@ re_match_regexp (re_matcher_ctx_t *re_ctx_p, /**< RegExp matcher context */
       }
       default:
       {
-        JERRY_TRACE_MSG ("UNKNOWN opcode (%d)!\n", (uint32_t) op);
+        JERRY_TRACE_MSG ("UNKNOWN opcode (%u)!\n", (unsigned int) op);
         return ecma_raise_common_error (ECMA_ERR_MSG (""));
       }
     }
@@ -1311,11 +1308,9 @@ ecma_regexp_exec_helper (ecma_value_t regexp_value, /**< RegExp object */
   if (input_buffer_p && (re_ctx.flags & RE_FLAG_GLOBAL))
   {
     ecma_string_t *magic_str_p = ecma_get_magic_string (LIT_MAGIC_STRING_LASTINDEX_UL);
-    ecma_property_t *lastindex_prop_p = ecma_op_object_get_property (regexp_object_p, magic_str_p);
+    ecma_value_t lastindex_value = ecma_op_object_get_own_data_prop (regexp_object_p, magic_str_p);
 
-    ECMA_OP_TO_NUMBER_TRY_CATCH (lastindex_num,
-                                 ecma_get_named_data_property_value (lastindex_prop_p),
-                                 ret_value)
+    ECMA_OP_TO_NUMBER_TRY_CATCH (lastindex_num, lastindex_value, ret_value)
 
     index = ecma_number_to_int32 (lastindex_num);
 
@@ -1330,6 +1325,8 @@ ecma_regexp_exec_helper (ecma_value_t regexp_value, /**< RegExp object */
     }
 
     ECMA_OP_TO_NUMBER_FINALIZE (lastindex_num);
+
+    ecma_fast_free_value (lastindex_value);
 
     ecma_deref_ecma_string (magic_str_p);
   }
@@ -1432,11 +1429,12 @@ ecma_regexp_exec_helper (ecma_value_t regexp_value, /**< RegExp object */
           capture_value = ecma_make_string_value (capture_str_p);
         }
 
-        ecma_property_t *prop_p;
-        prop_p = ecma_create_named_data_property (result_array_obj_p,
-                                                  index_str_p,
-                                                  ECMA_PROPERTY_CONFIGURABLE_ENUMERABLE_WRITABLE);
-        ecma_set_named_data_property_value (prop_p, capture_value);
+        ecma_property_value_t *prop_value_p;
+        prop_value_p = ecma_create_named_data_property (result_array_obj_p,
+                                                        index_str_p,
+                                                        ECMA_PROPERTY_CONFIGURABLE_ENUMERABLE_WRITABLE,
+                                                        NULL);
+        prop_value_p->value = capture_value;
 
         JERRY_ASSERT (!ecma_is_value_object (capture_value));
         ecma_deref_ecma_string (index_str_p);

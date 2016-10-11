@@ -1,4 +1,4 @@
-/* Copyright 2016 Intel Corporation
+/* Copyright (c) 2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,10 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef _JERRYSCRIPT_MBED_UTIL_LOGGING_H
+#define _JERRYSCRIPT_MBED_UTIL_LOGGING_H
 
-#ifndef ALLOCA_H
-#define ALLOCA_H
+#ifdef DEBUG_WRAPPER
+#define LOG_PRINT(...) printf(__VA_ARGS__)
+#else
+#define LOG_PRINT(...) while(0) { }
+#endif
 
-#define alloca(size) __builtin_alloca(size)
+#define LOG_PRINT_ALWAYS(...) printf(__VA_ARGS__)
 
-#endif /* !ALLOCA_H */
+#endif  // _JERRYSCRIPT_MBED_UTIL_LOGGING_H

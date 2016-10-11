@@ -79,6 +79,7 @@ typedef enum
   ECMA_SIMPLE_VALUE_TRUE, /**< boolean true */
   ECMA_SIMPLE_VALUE_UNDEFINED, /**< undefined value */
   ECMA_SIMPLE_VALUE_NULL, /**< null value */
+  ECMA_SIMPLE_VALUE_NOT_FOUND, /**< a special value returned by ecma_op_object_find */
   ECMA_SIMPLE_VALUE_REGISTER_REF, /**< register reference, a special "base" value for vm */
   ECMA_SIMPLE_VALUE__COUNT /** count of simple ecma values */
 } ecma_simple_value_t;
@@ -272,6 +273,10 @@ typedef enum
   ECMA_PROPERTY_TYPE_HASHMAP, /**< hash map for fast property access */
 
   ECMA_PROPERTY_TYPE__MAX = ECMA_PROPERTY_TYPE_HASHMAP, /**< highest value for property types. */
+
+  /* Property type aliases. */
+  ECMA_PROPERTY_TYPE_NOT_FOUND = ECMA_PROPERTY_TYPE_DELETED, /**< property is not found */
+  ECMA_PROPERTY_TYPE_VIRTUAL = ECMA_PROPERTY_TYPE_HASHMAP, /**< property is virtual */
 } ecma_property_types_t;
 
 /**
@@ -327,17 +332,10 @@ typedef enum
  * a packed struct would only consume sizeof(ecma_value_t)+1 memory
  * bytes, accessing such structure is inefficient from the CPU viewpoint
  * because the value is not naturally aligned. To improve performance,
- * multiple type bytes and values are packed together. The maximum
- * number of packed items is sizeof(ecma_value_t). The memory layout is
- * the following when the maximum number of items is present:
+ * two type bytes and values are packed together. The memory layout is
+ * the following:
  *
- *  [type 1, type 2, type 3, type 4][value 1][value 2][value 3][value 4]
- *
- * This way no memory is wasted and values are naturally aligned.
- *
- * For property pairs, only two values are used:
- *
- *  [type 1, type 2, unused 1, unused 2][value 1][value 2]
+ *  [type 1, type 2, unused byte 1, unused byte 2][value 1][value 2]
  *
  * The unused two bytes are used to store a compressed pointer for the
  * next property pair.
@@ -346,10 +344,7 @@ typedef enum
  * from the property address. However, property pointers cannot be compressed
  * anymore.
  */
-typedef struct
-{
-  uint8_t type_and_flags; /**< ecma_property_types_t (3 bit) and ecma_property_flags_t */
-} ecma_property_t;
+typedef uint8_t ecma_property_t; /**< ecma_property_types_t (3 bit) and ecma_property_flags_t */
 
 /**
  * Number of items in a property pair.
@@ -408,46 +403,82 @@ typedef struct
 /**
  * Get property type.
  */
-#define ECMA_PROPERTY_GET_TYPE(property_p) \
-  ((ecma_property_types_t) ((property_p)->type_and_flags & ECMA_PROPERTY_TYPE_MASK))
+#define ECMA_PROPERTY_GET_TYPE(property) \
+  ((ecma_property_types_t) ((property) & ECMA_PROPERTY_TYPE_MASK))
 
 /**
  * Returns true if the property pointer is a property pair.
  */
 #define ECMA_PROPERTY_IS_PROPERTY_PAIR(property_header_p) \
-  (ECMA_PROPERTY_GET_TYPE ((property_header_p)->types + 0) <= ECMA_PROPERTY_TYPE_PROPERTY_PAIR__MAX)
+  (ECMA_PROPERTY_GET_TYPE ((property_header_p)->types[0]) <= ECMA_PROPERTY_TYPE_PROPERTY_PAIR__MAX)
 
 /**
  * Returns the internal property type
  */
 #define ECMA_PROPERTY_GET_INTERNAL_PROPERTY_TYPE(property_p) \
-  ((ecma_internal_property_id_t) ((property_p)->type_and_flags >> ECMA_PROPERTY_FLAG_SHIFT))
+  ((ecma_internal_property_id_t) (*(property_p) >> ECMA_PROPERTY_FLAG_SHIFT))
 
 /**
- * Computing the data offset of a property.
+ * Add the offset part to a property for computing its property data pointer.
  */
-#define ECMA_PROPERTY_VALUE_OFFSET(property_p) \
-  ((((uintptr_t) (property_p)) & (sizeof (ecma_property_value_t) - 1)) + 1)
+#define ECMA_PROPERTY_VALUE_ADD_OFFSET(property_p) \
+  ((uintptr_t) ((((uint8_t *) (property_p)) + (sizeof (ecma_property_value_t) * 2 - 1))))
 
 /**
- * Computing the base address of property data list.
+ * Align the property for computing its property data pointer.
  */
-#define ECMA_PROPERTY_VALUE_BASE_PTR(property_p) \
-  ((ecma_property_value_t *) (((uintptr_t) (property_p)) & ~(sizeof (ecma_property_value_t) - 1)))
+#define ECMA_PROPERTY_VALUE_DATA_PTR(property_p) \
+  (ECMA_PROPERTY_VALUE_ADD_OFFSET (property_p) & ~(sizeof (ecma_property_value_t) - 1))
 
 /**
- * Pointer to property data.
+ * Compute the property data pointer of a property.
+ * The property must be part of a property pair.
  */
 #define ECMA_PROPERTY_VALUE_PTR(property_p) \
-  (ECMA_PROPERTY_VALUE_BASE_PTR (property_p) + ECMA_PROPERTY_VALUE_OFFSET (property_p))
+  ((ecma_property_value_t *) ECMA_PROPERTY_VALUE_DATA_PTR (property_p))
+
+/**
+ * Depth limit for property search (maximum prototype chain depth).
+ */
+#define ECMA_PROPERTY_SEARCH_DEPTH_LIMIT 128
+
+/**
+ * Property reference. It contains the value pointer
+ * for real, and the value itself for virtual properties.
+ */
+typedef union
+{
+  ecma_property_value_t *value_p; /**< property value pointer for real properties */
+  ecma_value_t virtual_value; /**< property value for virtual properties */
+} ecma_property_ref_t;
+
+/**
+ * Extended property reference, which also contains the
+ * property descriptor pointer for real properties.
+ */
+typedef struct
+{
+  ecma_property_ref_t property_ref; /**< property reference */
+  ecma_property_t *property_p; /**< property descriptor pointer for real properties */
+} ecma_extended_property_ref_t;
+
+/**
+ * Option flags for ecma_op_object_get_property
+ */
+typedef enum
+{
+  ECMA_PROPERTY_GET_NO_OPTIONS = 0, /**< no option flags for ecma_op_object_get_property */
+  ECMA_PROPERTY_GET_VALUE = 1u << 0, /**< fill virtual_value field for virtual properties */
+  ECMA_PROPERTY_GET_EXT_REFERENCE = 1u << 1, /**< get extended reference to the property */
+} ecma_property_get_option_bits_t;
 
 /**
  * Internal object types
  */
 typedef enum
 {
-  ECMA_OBJECT_TYPE_GENERAL = 0, /**< all objects that are not String (15.5), Function (15.3),
-                                 Arguments (10.6), Array (15.4) specification-defined objects */
+  ECMA_OBJECT_TYPE_GENERAL = 0, /**< all objects that are not String (15.5),
+                                 *   Function (15.3), Arguments (10.6), Array (15.4) objects */
   ECMA_OBJECT_TYPE_FUNCTION = 1, /**< Function objects (15.3), created through 13.2 routine */
   ECMA_OBJECT_TYPE_EXTERNAL_FUNCTION = 2, /**< External (host) function object */
   ECMA_OBJECT_TYPE_ARRAY = 3, /**< Array object (15.4) */
@@ -514,7 +545,7 @@ typedef enum
  * Description of ECMA-object or lexical environment
  * (depending on is_lexical_environment).
  */
-typedef struct ecma_object_t
+typedef struct
 {
   /** type : 3 bit : ecma_object_type_t or ecma_lexical_environment_type_t
                      depending on ECMA_OBJECT_FLAG_BUILT_IN_OR_LEXICAL_ENV
@@ -872,7 +903,7 @@ typedef enum
 /**
  * ECMA string-value descriptor
  */
-typedef struct ecma_string_t
+typedef struct
 {
   /** Reference counter for the string */
   uint16_t refs_and_container;

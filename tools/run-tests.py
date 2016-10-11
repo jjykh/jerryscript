@@ -16,7 +16,9 @@
 # limitations under the License.
 
 import argparse
-from subprocess import CalledProcessError
+import os
+import subprocess
+import sys
 from settings import *
 
 OUTPUT_DIR = path.join(PROJECT_DIR, 'build', 'tests')
@@ -25,8 +27,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--toolchain', action='store', default='', help='Add toolchain file')
 parser.add_argument('--outdir', action='store', default=OUTPUT_DIR, help='Specify output directory (default: %(default)s)')
 parser.add_argument('--check-signed-off', action='store_true', default=False, help='Run signed-off check')
+parser.add_argument('--check-signed-off-tolerant', action='store_true', default=False, help='Run signed-off check in tolerant mode')
+parser.add_argument('--check-signed-off-travis', action='store_true', default=False, help='Run signed-off check in tolerant mode if on Travis CI and not checking a pull request')
 parser.add_argument('--check-cppcheck', action='store_true', default=False, help='Run cppcheck')
 parser.add_argument('--check-vera', action='store_true', default=False, help='Run vera check')
+parser.add_argument('--check-license', action='store_true', default=False, help='Run license check')
 parser.add_argument('--buildoption-test', action='store_true', default=False, help='Run buildoption-test')
 parser.add_argument('--jerry-tests', action='store_true', default=False, help='Run jerry-tests')
 parser.add_argument('--jerry-test-suite', action='store_true', default=False, help='Run jerry-test-suite')
@@ -39,7 +44,7 @@ if len(sys.argv) == 1:
 
 script_args = parser.parse_args()
 
-if os.path.isabs(script_args.outdir):
+if path.isabs(script_args.outdir):
     OUTPUT_DIR = script_args.outdir
 else:
     OUTPUT_DIR = path.join(PROJECT_DIR, script_args.outdir)
@@ -50,7 +55,7 @@ class Options:
     test_args = []
 
     def __init__(self, name = '', build_args = [], test_args = []):
-        self.out_dir = os.path.join(OUTPUT_DIR, name)
+        self.out_dir = path.join(OUTPUT_DIR, name)
         self.build_args = build_args
         self.build_args.append('--builddir=%s' % self.out_dir)
         self.test_args = test_args
@@ -58,8 +63,8 @@ class Options:
 
 # Test options for unittests
 jerry_unittests_options = [
-                           Options('unittests', ['--unittests']),
-                           Options('unittests-debug', ['--unittests', '--debug']),
+                           Options('unittests', ['--unittests', '--error-messages=on', '--snapshot-save=on', '--snapshot-exec=on']),
+                           Options('unittests-debug', ['--unittests', '--debug', '--error-messages=on', '--snapshot-save=on', '--snapshot-exec=on']),
                           ]
 
 # Test options for jerry-tests
@@ -87,8 +92,7 @@ jerry_buildoptions = [
                       Options('buildoption_test-mem_stats', ['--mem-stats=on']),
                       Options('buildoption_test-show_opcodes', ['--show-opcodes=on']),
                       Options('buildoption_test-show_regexp_opcodes', ['--show-regexp-opcodes=on']),
-                      Options('buildoption_test-jerry_libc', ['--jerry-libc=on', '--compiler-default-libc=off']),
-                      Options('buildoption_test-compiler_default_libc', ['--compiler-default-libc=on', '--jerry-libc=off']),
+                      Options('buildoption_test-compiler_default_libc', ['--jerry-libc=off']),
                      ]
 
 def get_bin_dir_path(out_dir):
@@ -108,10 +112,20 @@ def create_binary(buildoptions):
 
     try:
         script_output = subprocess.check_output(build_cmd)
-    except CalledProcessError as e:
+    except subprocess.CalledProcessError as e:
         return e.returncode
 
     return 0
+
+def run_check(runnable):
+    sys.stderr.write('Test command: %s\n' % ' '.join(runnable))
+
+    try:
+        ret = subprocess.check_call(runnable)
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+
+    return ret
 
 def run_jerry_tests():
     ret_build = ret_test = 0
@@ -171,14 +185,23 @@ def run_buildoption_test():
 def main():
     ret = 0
 
-    if script_args.all or script_args.check_signed_off:
-        ret = run_check(SIGNED_OFF_SCRIPT)
+    if script_args.check_signed_off_tolerant:
+        ret = run_check([SIGNED_OFF_SCRIPT, '--tolerant'])
+
+    if not ret and script_args.check_signed_off_travis:
+        ret = run_check([SIGNED_OFF_SCRIPT, '--travis'])
+
+    if not ret and (script_args.all or script_args.check_signed_off):
+        ret = run_check([SIGNED_OFF_SCRIPT])
 
     if not ret and (script_args.all or script_args.check_cppcheck):
-        ret = run_check(CPPCHECK_SCRIPT)
+        ret = run_check([CPPCHECK_SCRIPT])
 
     if not ret and (script_args.all or script_args.check_vera):
-        ret = run_check(VERA_SCRIPT)
+        ret = run_check([VERA_SCRIPT])
+
+    if not ret and (script_args.all or script_args.check_license):
+        ret = run_check([LICENSE_SCRIPT])
 
     if not ret and (script_args.all or script_args.jerry_tests):
         ret = run_jerry_tests()
